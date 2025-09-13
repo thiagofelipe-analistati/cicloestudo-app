@@ -1,0 +1,30 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Disciplina {
+  id        String   @id @default(uuid())
+  nome      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  topicos   Topico[]
+}
+
+model Topico {
+  id              String   @id @default(uuid())
+  nome            String
+  urlEstudo       String?
+  comentarios     String?
+  totalQuestoes   Int      @default(0)
+  acertosQuestoes Int      @default(0)
+  errosQuestoes   Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  disciplina      Disciplina @relation(fields: [disciplinaId], references: [id])
+  disciplinaId    String
+}
