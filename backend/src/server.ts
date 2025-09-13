@@ -1,10 +1,12 @@
 // src/server.ts
 import express from 'express';
+import cors from 'cors';
 import disciplinaRoutes from './routes/disciplina.routes';
 import sessaoRoutes from './routes/sessao.routes';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
 app.get('/api', (req, res) => {
