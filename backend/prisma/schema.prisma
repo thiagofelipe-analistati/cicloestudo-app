@@ -13,6 +13,7 @@ model Disciplina {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   topicos   Topico[]
+  sessoes   SessaoEstudo[]
 }
 
 model Topico {
@@ -27,4 +28,26 @@ model Topico {
   updatedAt       DateTime @updatedAt
   disciplina      Disciplina @relation(fields: [disciplinaId], references: [id])
   disciplinaId    String
+  sessoes         SessaoEstudo[]
+}
+// --- NOVO MODELO ADICIONADO ABAIXO ---
+model SessaoEstudo {
+  id              String    @id @default(uuid())
+  data            DateTime  @default(now())
+  tempoEstudado   Int       // Armazenado em segundos para facilitar cálculos
+  categoria       String    // Ex: "Estudo", "Revisão", "Exercícios"
+  totalQuestoes   Int?      // O '?' torna o campo opcional
+  acertosQuestoes Int?
+  errosQuestoes   Int?
+  paginasLidas    Int?
+  comentarios     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relacionamentos
+  disciplina   Disciplina @relation(fields: [disciplinaId], references: [id])
+  disciplinaId String
+
+  topico       Topico?    @relation(fields: [topicoId], references: [id])
+  topicoId     String?    // Opcional, pois uma sessão pode ser sobre a disciplina em geral
 }
