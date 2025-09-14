@@ -29,3 +29,15 @@ export const updateDisciplina = async (id: string, nome: string): Promise<Discip
 export const deleteDisciplina = async (id: string): Promise<void> => {
   await api.delete(`/disciplinas/${id}`);
 };
+export interface DisciplinaSummary {
+  id: string;
+  nome: string;
+  tempoTotal: number;
+  questoesTotal: number;
+  acertosTotal: number;
+}
+
+export const getDisciplinasSummary = async (): Promise<DisciplinaSummary[]> => {
+  const response = await api.get('/disciplinas/summary');
+  return response.data;
+};

@@ -12,6 +12,7 @@ interface SessaoEstudoModalProps {
   onRequestClose: () => void;
   disciplinas: Disciplina[];
   initialTimeInSeconds: number;
+  onSessionSaved: () => void; // Nova propriedade para sinalizar que os dados mudaram
 }
 
 const timeToSeconds = (timeString: string): number => {
@@ -30,9 +31,16 @@ const secondsToTime = (totalSeconds: number): string => {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-export function SessaoEstudoModal({ isOpen, onRequestClose, disciplinas, initialTimeInSeconds }: SessaoEstudoModalProps) {
+const getTodayString = () => {
+  const today = new Date();
+  const offset = today.getTimezoneOffset();
+  const todayWithOffset = new Date(today.getTime() - (offset*60*1000));
+  return todayWithOffset.toISOString().split('T')[0];
+}
+
+export function SessaoEstudoModal({ isOpen, onRequestClose, disciplinas, initialTimeInSeconds, onSessionSaved }: SessaoEstudoModalProps) {
   const [formData, setFormData] = useState({
-    data: new Date().toISOString().split('T')[0],
+    data: getTodayString(),
     disciplinaId: '',
     topicoId: '',
     categoria: 'Estudo',
@@ -46,12 +54,13 @@ export function SessaoEstudoModal({ isOpen, onRequestClose, disciplinas, initial
 
   useEffect(() => {
     if (isOpen) {
-      // Preenche o tempo se vier do cronômetro, senão reseta
       const tempoInicial = initialTimeInSeconds > 0 ? secondsToTime(initialTimeInSeconds) : '01:00:00';
       setFormData(prev => ({
         ...prev,
-        data: new Date().toISOString().split('T')[0],
-        tempoEstudado: tempoInicial
+        data: getTodayString(),
+        tempoEstudado: tempoInicial,
+        disciplinaId: '',
+        topicoId: '',
       }));
     }
   }, [isOpen, initialTimeInSeconds]);
@@ -74,6 +83,7 @@ export function SessaoEstudoModal({ isOpen, onRequestClose, disciplinas, initial
     const dadosParaApi = { ...formData, tempoEstudado: timeToSeconds(formData.tempoEstudado) };
     try {
       await createSessaoEstudo(dadosParaApi);
+      onSessionSaved(); // <-- AVISA O APP.TSX QUE OS DADOS MUDARAM
       onRequestClose();
     } catch (error) {
       console.error("Falha ao salvar a sessão:", error);

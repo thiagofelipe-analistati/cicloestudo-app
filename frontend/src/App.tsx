@@ -12,25 +12,34 @@ import { getAllDisciplinas } from './services/disciplinaService';
 function App() {
   const [isSessaoModalOpen, setIsSessaoModalOpen] = useState(false);
   const [isChronometerModalOpen, setIsChronometerModalOpen] = useState(false);
-  
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [prefilledTime, setPrefilledTime] = useState(0);
+
+  // Estado para controlar a atualização dos dados nas páginas filhas
+  const [dataKey, setDataKey] = useState(0);
+
+  // Função que os componentes filhos chamarão para sinalizar uma atualização
+  const refetchData = () => {
+    setDataKey(prevKey => prevKey + 1);
+  };
 
   useEffect(() => {
     getAllDisciplinas().then(data => setDisciplinas(data));
   }, []);
   
-  // Função que o cronômetro chama quando é parado
   const handleChronometerStop = (elapsedSeconds: number) => {
-    setIsChronometerModalOpen(false); // Fecha o modal do cronômetro
-    setPrefilledTime(elapsedSeconds); // Guarda o tempo
-    setIsSessaoModalOpen(true);      // Abre o modal de registro
+    setIsChronometerModalOpen(false);
+    setPrefilledTime(elapsedSeconds);
+    setIsSessaoModalOpen(true);
   };
 
-  // Função para abrir o modal de registro manualmente
   const handleOpenSessaoModal = () => {
-    setPrefilledTime(0); // Garante que o tempo não seja preenchido
+    setPrefilledTime(0);
     setIsSessaoModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsSessaoModalOpen(false);
   };
 
   return (
@@ -42,7 +51,8 @@ function App() {
           onOpenNewStudySession={handleOpenSessaoModal}
         />
         <main className={styles.mainContent}>
-          <Outlet />
+          {/* Passamos a chave de atualização para todas as páginas via 'context' do Outlet */}
+          <Outlet context={{ refetchKey: dataKey }} />
         </main>
       </div>
       
@@ -54,9 +64,10 @@ function App() {
 
       <SessaoEstudoModal
         isOpen={isSessaoModalOpen}
-        onRequestClose={() => setIsSessaoModalOpen(false)}
+        onRequestClose={handleCloseModal}
         disciplinas={disciplinas}
         initialTimeInSeconds={prefilledTime}
+        onSessionSaved={refetchData} // <-- Passa a função de recarregar para o modal
       />
     </div>
   );

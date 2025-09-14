@@ -3,12 +3,12 @@ import styles from './Sidebar.module.css';
 import logoAprovaFlow from '../../assets/logo.png';
 import { NavLink } from 'react-router-dom';
 
-// O Sidebar não precisa mais receber propriedades
 export function Sidebar() {
   return (
     <aside className={styles.sidebar}>
-      <div>
-        <NavLink to="/">
+      {/* Nova div para agrupar logo e navegação */}
+      <div className={styles.topSection}> 
+        <NavLink to="/" className={styles.logoLink}>
           <img src={logoAprovaFlow} alt="Logo AprovaFlow" className={styles.logo} />
         </NavLink>
         <nav>
@@ -26,7 +26,6 @@ export function Sidebar() {
           </ul>
         </nav>
       </div>
-      {/* O botão foi removido daqui */}
     </aside>
   );
 }

@@ -59,4 +59,13 @@ export const disciplinaController = {
       res.status(500).json({ error: 'Falha ao deletar disciplina.' });
     }
   },
+  getSummary: async (req: Request, res: Response) => {
+    try {
+      const summary = await disciplinaService.getSummary();
+      res.status(200).json(summary);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Falha ao buscar resumo das disciplinas.' });
+    }
+  },
 };

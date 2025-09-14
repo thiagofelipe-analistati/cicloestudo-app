@@ -41,7 +41,7 @@ model SessaoEstudo {
   errosQuestoes   Int?
   paginasLidas    Int?
   comentarios     String?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime 
   updatedAt       DateTime  @updatedAt
   disciplina      Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade) // <-- ADICIONADO AQUI
   disciplinaId    String

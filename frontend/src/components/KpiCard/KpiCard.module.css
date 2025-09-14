@@ -1,0 +1,25 @@
+/* src/components/KpiCard/KpiCard.module.css */
+.card {
+  background-color: var(--cor-fundo-secundario);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+.card h3 {
+  margin-top: 0;
+  color: var(--cor-texto-principal);
+  font-size: 1rem;
+  font-weight: 500;
+}
+.card p {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--cor-primaria);
+  margin: 0.5rem 0 0;
+}
+.details {
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+  color: #555;
+}

@@ -32,30 +32,18 @@ export const sessaoService = {
       },
     });
   },
-
-  getAll: async (filters?: {
-    disciplinaId?: string;
-    dataInicio?: string;
-    dataFim?: string;
-  }) => {
+  getAll: async (filters?: { disciplinaId?: string; dataInicio?: string; dataFim?: string; }) => {
     const where: any = {};
-
-    if (filters?.disciplinaId) {
-      where.disciplinaId = filters.disciplinaId;
-    }
-
+    if (filters?.disciplinaId) { where.disciplinaId = filters.disciplinaId; }
     if (filters?.dataInicio || filters?.dataFim) {
       where.data = {};
-      if (filters.dataInicio) {
-        where.data.gte = new Date(filters.dataInicio); // Greater Than or Equal
-      }
+      if (filters.dataInicio) { where.data.gte = new Date(filters.dataInicio); }
       if (filters.dataFim) {
         const dataFimAjustada = new Date(filters.dataFim);
-        dataFimAjustada.setUTCHours(23, 59, 59, 999); // Ajusta para o final do dia em UTC
-        where.data.lte = dataFimAjustada; // Less Than or Equal
+        dataFimAjustada.setUTCHours(23, 59, 59, 999);
+        where.data.lte = dataFimAjustada;
       }
     }
-
     return await prisma.sessaoEstudo.findMany({
       where,
       include: {
