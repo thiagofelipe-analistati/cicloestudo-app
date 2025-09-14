@@ -1,18 +1,27 @@
 // src/components/Sidebar/Sidebar.tsx
 import styles from './Sidebar.module.css';
 import logoAprovaFlow from '../../assets/logo.png';
+import { NavLink } from 'react-router-dom';
 
 export function Sidebar() {
   return (
     <aside className={styles.sidebar}>
-      <img src={logoAprovaFlow} alt="Logo AprovaFlow" className={styles.logo} />
+     <NavLink to="/" className={styles.logoLink}> 
+        <img src={logoAprovaFlow} alt="Logo AprovaFlow" className={styles.logo} />
+      </NavLink>
+      
       <nav>
         <ul>
           <li>
-            {/* No futuro, usaremos <Link> do react-router-dom aqui */}
-            <a href="#" className={styles.active}>Disciplinas</a>
+            {/* AQUI ESTÁ A MUDANÇA: O 'to' agora aponta para "/disciplinas" */}
+            <NavLink 
+              to="/disciplinas" 
+              className={({ isActive }) => isActive ? styles.active : ''}
+            >
+              Disciplinas
+            </NavLink>
           </li>
-          {/* Outros links do menu virão aqui */}
+          {/* Futuros links virão aqui, ex: <NavLink to="/planejamento">... */}
         </ul>
       </nav>
     </aside>

@@ -2,20 +2,28 @@
 .sidebar {
   width: 250px;
   background-color: var(--cor-fundo-secundario);
-  padding: 0.5rem;
+  padding: 1.5rem;
   height: 100vh;
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* Espaçamento entre a logo e a navegação */
-  justify-content: flex-start; /* Alinha os itens ao topo */
+  gap: 1rem;
+  justify-content: flex-start;
 }
 
+/* Nova classe para o LINK da logo */
+.logoLink {
+  display: block; /* Garante que o link se comporte como um bloco */
+  align-self: center; /* Centraliza o link (e a logo dentro dele) */
+   /* Adiciona o espaçamento inferior */
+}
+
+/* A classe da IMAGEM agora só cuida do tamanho */
 .logo {
   height: 80px; /* Mantendo o tamanho que você gostou */
   width: auto; /* Garante a proporção */
-  align-self: center;
-  margin-bottom: 1.5rem; /* Adiciona uma margem extra abaixo da logo */
+  align-self: top;
+  margin-bottom: 0.5rem; /* Adiciona uma margem extra abaixo da logo */
 }
 
 .sidebar nav ul {

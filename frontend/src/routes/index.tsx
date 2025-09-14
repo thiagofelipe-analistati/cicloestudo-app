@@ -1,19 +1,22 @@
 // src/routes/index.tsx
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "../App";
-import { HomePage } from "../pages/HomePage";
-
+import { DashboardPage } from "../pages/DashboardPage.tsx";   // <-- Adicione .tsx
+import { DisciplinasPage } from "../pages/DisciplinasPage.tsx"; // <-- Adicione .tsx
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />, // O App.tsx é o elemento pai (layout)
+    element: <App />,
     children: [
       {
-        path: "/", // Quando a URL for a raiz
-        element: <HomePage />, // Renderize a HomePage
+        index: true, 
+        element: <DashboardPage />,
       },
-      
+      {
+        path: "/disciplinas", 
+        element: <DisciplinasPage />,
+      },
     ],
   },
 ]);
