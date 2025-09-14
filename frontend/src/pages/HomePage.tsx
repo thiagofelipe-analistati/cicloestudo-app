@@ -1,36 +1,28 @@
 // src/pages/HomePage.tsx
 import { useState, useEffect, FormEvent } from 'react';
-// Imports de Disciplina
+import styles from './HomePage.module.css';
+import { FaPen, FaTrash } from 'react-icons/fa';
 import type { Disciplina } from '../services/disciplinaService';
 import { getAllDisciplinas, createDisciplina, updateDisciplina, deleteDisciplina } from '../services/disciplinaService';
-// Imports de Tópico
 import type { Topico } from '../services/topicoService';
 import { getTopicosByDisciplina, createTopico, updateTopico, deleteTopico } from '../services/topicoService';
 
-
 export function HomePage() {
-  // --- Estados para Disciplinas ---
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-  const [nomeNovaDisciplina, setNomeNovaDisciplina] = useState('');
-  // --- NOVOS ESTADOS PARA EDIÇÃO DE DISCIPLINA ---
-  const [editingDisciplinaId, setEditingDisciplinaId] = useState<string | null>(null);
-  const [editingDisciplinaName, setEditingDisciplinaName] = useState('');
-
-  // --- Estados para Tópicos ---
-  const [topicos, setTopicos] = useState<Topico[]>([]);
-  const [selectedDisciplina, setSelectedDisciplina] = useState<Disciplina | null>(null);
-  const [nomeNovoTopico, setNomeNovoTopico] = useState('');
-  // --- NOVOS ESTADOS PARA EDIÇÃO DE TÓPICO ---
-  const [editingTopicoId, setEditingTopicoId] = useState<string | null>(null);
-  const [editingTopicoName, setEditingTopicoName] = useState('');
-  
-  // --- Estados Gerais ---
+  const [topicos, setTopicos] = useState<Record<string, Topico[]>>({});
+  const [expandedDisciplinaId, setExpandedDisciplinaId] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
-  
-  // --- Funções de Disciplina ---
+
+  const [isAddingDisciplina, setIsAddingDisciplina] = useState(false);
+  const [nomeNovaDisciplina, setNomeNovaDisciplina] = useState('');
+  const [nomeNovoTopico, setNomeNovoTopico] = useState('');
+
+  const [editingDisciplina, setEditingDisciplina] = useState<{ id: string; nome: string } | null>(null);
+  const [editingTopico, setEditingTopico] = useState<{ id: string; nome: string } | null>(null);
+
   const fetchDisciplinas = async () => {
     try {
-      const data = await getAllDisciplinas();
+      const data = (await getAllDisciplinas()).sort((a, b) => a.nome.localeCompare(b.nome));
       setDisciplinas(data);
     } catch (error) { console.error(error); }
   };
@@ -40,165 +32,158 @@ export function HomePage() {
     fetchDisciplinas().finally(() => setCarregando(false));
   }, []);
 
-  const handleCriarDisciplina = async (event: FormEvent) => {
-    event.preventDefault();
+  const handleToggleDisciplina = (disciplinaId: string) => {
+    const newExpandedId = expandedDisciplinaId === disciplinaId ? null : disciplinaId;
+    setExpandedDisciplinaId(newExpandedId);
+    if (newExpandedId && !topicos[newExpandedId]) {
+      fetchTopicos(newExpandedId);
+    }
+  };
+
+  const fetchTopicos = async (disciplinaId: string) => {
+    try {
+      const topicosData = await getTopicosByDisciplina(disciplinaId);
+      setTopicos(prev => ({ ...prev, [disciplinaId]: topicosData }));
+    } catch (error) { console.error(error); }
+  };
+
+  const handleCriarDisciplina = async (e: FormEvent) => {
+    e.preventDefault();
     if (!nomeNovaDisciplina.trim()) return;
-    try {
-      await createDisciplina(nomeNovaDisciplina);
-      setNomeNovaDisciplina('');
-      fetchDisciplinas();
-    } catch (error) { console.error(error); }
+    await createDisciplina(nomeNovaDisciplina);
+    setNomeNovaDisciplina('');
+    setIsAddingDisciplina(false);
+    fetchDisciplinas();
   };
 
-  const handleDeletarDisciplina = async (id: string) => {
+  const handleUpdateDisciplina = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editingDisciplina || !editingDisciplina.nome.trim()) return;
+    await updateDisciplina(editingDisciplina.id, editingDisciplina.nome);
+    setEditingDisciplina(null);
+    fetchDisciplinas();
+  };
+  
+  const handleDeleteDisciplina = async (disciplinaId: string) => {
     if (window.confirm('Tem certeza? Isso excluirá todos os tópicos e sessões associados.')) {
-      try {
-        await deleteDisciplina(id);
-        fetchDisciplinas();
-        if (selectedDisciplina?.id === id) {
-          setSelectedDisciplina(null);
-          setTopicos([]);
-        }
-      } catch (error) { console.error(error); }
-    }
-  };
-
-  // --- NOVAS FUNÇÕES PARA EDIÇÃO DE DISCIPLINA ---
-  const handleEntrarModoEdicaoDisciplina = (disciplina: Disciplina) => {
-    setEditingDisciplinaId(disciplina.id);
-    setEditingDisciplinaName(disciplina.nome);
-  };
-
-  const handleSalvarEdicaoDisciplina = async (id: string) => {
-    if (!editingDisciplinaName.trim()) return;
-    try {
-      await updateDisciplina(id, editingDisciplinaName);
-      setEditingDisciplinaId(null);
-      setEditingDisciplinaName('');
+      await deleteDisciplina(disciplinaId);
+      if (expandedDisciplinaId === disciplinaId) {
+        setExpandedDisciplinaId(null);
+      }
       fetchDisciplinas();
-    } catch (error) { console.error(error); }
-  };
-
-  // --- Funções de Tópico ---
-  const handleSelectDisciplina = async (disciplina: Disciplina) => {
-    setSelectedDisciplina(disciplina);
-    try {
-      const data = await getTopicosByDisciplina(disciplina.id);
-      setTopicos(data);
-    } catch (error) {
-      console.error(error);
-      setTopicos([]);
-    }
-  };
-  
-  const handleCriarTopico = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!nomeNovoTopico.trim() || !selectedDisciplina) return;
-    try {
-      await createTopico(selectedDisciplina.id, nomeNovoTopico);
-      setNomeNovoTopico('');
-      handleSelectDisciplina(selectedDisciplina); // Re-busca os tópicos
-    } catch (error) { console.error(error); }
-  };
-  
-  const handleDeletarTopico = async (topicoId: string) => {
-    if (!selectedDisciplina) return;
-    if(window.confirm('Tem certeza que deseja excluir este tópico?')) {
-      try {
-        await deleteTopico(topicoId, selectedDisciplina.id);
-        handleSelectDisciplina(selectedDisciplina); // Re-busca os tópicos
-      } catch (error) { console.error(error); }
     }
   };
 
-  // --- NOVAS FUNÇÕES PARA EDIÇÃO DE TÓPICO ---
-  const handleEntrarModoEdicaoTopico = (topico: Topico) => {
-    setEditingTopicoId(topico.id);
-    setEditingTopicoName(topico.nome);
+  const handleCriarTopico = async (e: FormEvent, disciplinaId: string) => {
+    e.preventDefault();
+    if (!nomeNovoTopico.trim()) return;
+    await createTopico(disciplinaId, nomeNovoTopico);
+    setNomeNovoTopico('');
+    fetchTopicos(disciplinaId);
   };
 
-  const handleSalvarEdicaoTopico = async (topicoId: string) => {
-    if (!editingTopicoName.trim() || !selectedDisciplina) return;
-    try {
-      await updateTopico(topicoId, selectedDisciplina.id, editingTopicoName);
-      setEditingTopicoId(null);
-      setEditingTopicoName('');
-      handleSelectDisciplina(selectedDisciplina); // Re-busca os tópicos
-    } catch (error) { console.error(error); }
+  const handleUpdateTopico = async (e: FormEvent, disciplinaId: string) => {
+    e.preventDefault();
+    if (!editingTopico || !editingTopico.nome.trim()) return;
+    await updateTopico(editingTopico.id, disciplinaId, editingTopico.nome);
+    setEditingTopico(null);
+    fetchTopicos(disciplinaId);
   };
   
+  const handleDeleteTopico = async (topicoId: string, disciplinaId: string) => {
+    if (window.confirm('Tem certeza que deseja excluir este tópico?')) {
+      await deleteTopico(topicoId, disciplinaId);
+      fetchTopicos(disciplinaId);
+    }
+  };
+
   if (carregando) return <div>Carregando...</div>;
 
   return (
-    <div style={{ display: 'flex', gap: '40px', padding: '20px' }}>
-      {/* Coluna da Esquerda: Disciplinas */}
-      <div style={{ width: '50%' }}>
-        <h2>Disciplinas</h2>
-        <form onSubmit={handleCriarDisciplina}>
-          <input
-            type="text"
-            placeholder="Nova disciplina"
-            value={nomeNovaDisciplina}
-            onChange={(e) => setNomeNovaDisciplina(e.target.value)}
-          />
-          <button type="submit">Adicionar</button>
-        </form>
-        <ul>
-          {disciplinas.map((disciplina) => (
-            <li key={disciplina.id} style={{ marginBottom: '10px' }}>
-              {editingDisciplinaId === disciplina.id ? (
-                <>
-                  <input type="text" value={editingDisciplinaName} onChange={(e) => setEditingDisciplinaName(e.target.value)} />
-                  <button onClick={() => handleSalvarEdicaoDisciplina(disciplina.id)}>Salvar</button>
-                  <button onClick={() => setEditingDisciplinaId(null)}>Cancelar</button>
-                </>
-              ) : (
-                <>
-                  <span onClick={() => handleSelectDisciplina(disciplina)} style={{ cursor: 'pointer' }}>
-                    {disciplina.nome}
-                  </span>
-                  <button onClick={() => handleEntrarModoEdicaoDisciplina(disciplina)} style={{ marginLeft: '10px' }}>Editar</button>
-                  <button onClick={() => handleDeletarDisciplina(disciplina.id)}>Excluir</button>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Coluna da Direita: Tópicos */}
-      <div style={{ width: '50%' }}>
-        {selectedDisciplina ? (
-          <>
-            <h2>Tópicos de: {selectedDisciplina.nome}</h2>
-            <form onSubmit={handleCriarTopico}>
-              <input type="text" placeholder="Novo tópico" value={nomeNovoTopico} onChange={(e) => setNomeNovoTopico(e.target.value)} />
-              <button type="submit">Adicionar</button>
-            </form>
-            <ul>
-              {topicos.map((topico) => (
-                <li key={topico.id} style={{ marginBottom: '10px' }}>
-                  {editingTopicoId === topico.id ? (
-                    <>
-                      <input type="text" value={editingTopicoName} onChange={(e) => setEditingTopicoName(e.target.value)} />
-                      <button onClick={() => handleSalvarEdicaoTopico(topico.id)}>Salvar</button>
-                      <button onClick={() => setEditingTopicoId(null)}>Cancelar</button>
-                    </>
-                  ) : (
-                    <>
-                      <span>{topico.nome}</span>
-                      <button onClick={() => handleEntrarModoEdicaoTopico(topico)} style={{ marginLeft: '10px' }}>Editar</button>
-                      <button onClick={() => handleDeletarTopico(topico.id)}>Excluir</button>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <h2>Selecione uma disciplina para ver os tópicos</h2>
+    <div className={styles.pageContainer}>
+      <div className={styles.header}>
+        <h1>Disciplinas</h1>
+        {!isAddingDisciplina && (
+          <button className={styles.addButton} onClick={() => setIsAddingDisciplina(true)}>
+            Adicionar Nova Disciplina
+          </button>
         )}
       </div>
+
+      {isAddingDisciplina && (
+        <form onSubmit={handleCriarDisciplina} className={styles.addForm}>
+          <input
+            type="text" placeholder="Nome da nova disciplina"
+            value={nomeNovaDisciplina} onChange={(e) => setNomeNovaDisciplina(e.target.value)}
+            autoFocus
+          />
+          <button type="submit">Salvar</button>
+          <button type="button" onClick={() => setIsAddingDisciplina(false)}>Cancelar</button>
+        </form>
+      )}
+
+      <ul className={styles.disciplinaList}>
+        {disciplinas.map(disciplina => (
+          <li key={disciplina.id} className={styles.disciplinaItem}>
+            <div className={styles.disciplinaHeader} onClick={() => handleToggleDisciplina(disciplina.id)}>
+              {editingDisciplina?.id === disciplina.id ? (
+                <form onSubmit={handleUpdateDisciplina} className={styles.editForm} onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="text"
+                    value={editingDisciplina.nome}
+                    onChange={(e) => setEditingDisciplina({ ...editingDisciplina, nome: e.target.value })}
+                    autoFocus
+                  />
+                  <button type="submit">Salvar</button>
+                  <button type="button" onClick={() => setEditingDisciplina(null)}>Cancelar</button>
+                </form>
+              ) : (
+                <h3>{disciplina.nome}</h3>
+              )}
+              <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setEditingDisciplina({ id: disciplina.id, nome: disciplina.nome })} title="Editar Disciplina"><FaPen /></button>
+                <button onClick={() => handleDeleteDisciplina(disciplina.id)} title="Excluir Disciplina"><FaTrash /></button>
+              </div>
+            </div>
+
+            {expandedDisciplinaId === disciplina.id && (
+              <div className={styles.topicosContainer}>
+                <ul>
+                  {(topicos[disciplina.id] || []).map(topico => (
+                    <li key={topico.id} className={styles.topicoItem}>
+                      {editingTopico?.id === topico.id ? (
+                        <form onSubmit={(e) => handleUpdateTopico(e, disciplina.id)} className={styles.editForm}>
+                          <input
+                            type="text"
+                            value={editingTopico.nome}
+                            onChange={(e) => setEditingTopico({ ...editingTopico, nome: e.target.value })}
+                            autoFocus
+                          />
+                          <button type="submit">Salvar</button>
+                          <button type="button" onClick={() => setEditingTopico(null)}>Cancelar</button>
+                        </form>
+                      ) : (
+                        <span>{topico.nome}</span>
+                      )}
+                      <div className={styles.actions}>
+                        <button onClick={() => setEditingTopico({ id: topico.id, nome: topico.nome })} title="Editar Tópico"><FaPen /></button>
+                        <button onClick={() => handleDeleteTopico(topico.id, disciplina.id)} title="Excluir Tópico"><FaTrash /></button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <form onSubmit={(e) => handleCriarTopico(e, disciplina.id)} className={styles.addForm}>
+                  <input
+                    type="text" placeholder="Adicionar novo tópico"
+                    value={nomeNovoTopico} onChange={(e) => setNomeNovoTopico(e.target.value)}
+                  />
+                  <button type="submit">Salvar Tópico</button>
+                </form>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

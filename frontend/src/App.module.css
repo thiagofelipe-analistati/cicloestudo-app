@@ -1,0 +1,9 @@
+/* src/App.module.css */
+.appContainer {
+  display: flex;
+}
+.mainContent {
+  flex-grow: 1; /* Faz o conteúdo principal ocupar o resto do espaço */
+  height: 100vh;
+  overflow-y: auto; /* Adiciona scroll se o conteúdo for maior que a tela */
+}
