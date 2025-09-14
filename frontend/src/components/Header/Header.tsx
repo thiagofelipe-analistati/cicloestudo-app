@@ -1,21 +1,28 @@
 // src/components/Header/Header.tsx
 import styles from './Header.module.css';
-import logoAprovaFlow from '../../assets/logo.png'; // Importando a sua logo
+import { FaPlay } from 'react-icons/fa';
 
-export function Header() {
+interface HeaderProps {
+  onOpenChronometer: () => void;
+  onOpenNewStudySession: () => void;
+}
+
+export function Header({ onOpenChronometer, onOpenNewStudySession }: HeaderProps) {
   return (
-    <header className={styles.headerContainer}>
-      <img src={logoAprovaFlow} alt="Logo AprovaFlow" className={styles.logo} />
+    <header className={styles.header}>
+      <div className={styles.userInfo}>
+        <span>Olá, Concurseiro!</span>
+      </div>
       
-      <nav className={styles.navigation}>
-        <a href="#" className={styles.navLink}>Painel</a>
-        <a href="#" className={styles.navLink}>Histórico</a>
-        <a href="#" className={styles.navLink}>Planejamento</a>
-      </nav>
-      
-      <div className={styles.profileSection}>
-        {/* Espaço para o ícone do perfil no futuro */}
-        <span>Usuário</span>
+      <div className={styles.actionsContainer}>
+        <button className={styles.chronometerButton} onClick={onOpenChronometer}>
+          <FaPlay />
+          <span>Cronômetro</span>
+        </button>
+
+        <button className={styles.addStudyButton} onClick={onOpenNewStudySession}>
+          Adicionar Estudo
+        </button>
       </div>
     </header>
   );

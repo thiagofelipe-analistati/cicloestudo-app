@@ -1,9 +1,19 @@
 /* src/App.module.css */
 .appContainer {
   display: flex;
-}
-.mainContent {
-  flex-grow: 1; /* Faz o conteúdo principal ocupar o resto do espaço */
   height: 100vh;
-  overflow-y: auto; /* Adiciona scroll se o conteúdo for maior que a tela */
+  width: 100vw;
+  overflow: hidden; /* Evita barras de rolagem no container principal */
+}
+
+.contentWrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.mainContent {
+  flex-grow: 1;
+  overflow-y: auto; /* Adiciona scroll apenas na área de conteúdo */
 }

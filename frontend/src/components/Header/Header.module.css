@@ -1,23 +1,62 @@
-/* src/pages/HomePage.module.css */
-.pageContainer {
-  padding: 2rem;
-}
-
+/* src/components/Header/Header.module.css */
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  width: 100%;
+  padding: 1rem 2rem;
+  background-color: var(--cor-fundo-secundario);
   border-bottom: 1px solid #e0e0e0;
+
+  /* --- Regras de Alinhamento Principal --- */
+  display: flex;
+  justify-content: space-between; /* Empurra os filhos para as extremidades */
+  align-items: center;           /* Alinha verticalmente no centro */
 }
 
-.header h1 {
-  margin: 0;
+.userInfo span {
+  font-weight: 500;
+  color: var(--cor-texto-principal);
+}
+
+.actionsContainer {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.chronometerButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--cor-fundo-principal);
+  border: 1px solid #ddd;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.timeDisplay {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.2rem;
+  font-weight: bold;
   color: var(--cor-texto-titulos);
 }
 
-.addButton {
+.chronometer button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--cor-texto-principal);
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+}
+
+.chronometer button:hover {
+  color: var(--cor-primaria);
+}
+
+.addStudyButton {
   background-color: var(--cor-secundaria);
   color: var(--cor-texto-branco);
   border: none;
@@ -28,78 +67,6 @@
   transition: background-color 0.2s ease;
 }
 
-.addButton:hover {
-  background-color: #2ecc71; /* Verde Médio */
-}
-
-/* Estilos para o formulário de adição */
-.addForm {
-  background-color: #f9f9f9;
-  padding: 1rem;
-  margin-top: 0.5rem;
-  border-radius: 8px;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.addForm input {
-  flex-grow: 1;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.disciplinaList {
-  list-style: none;
-  padding: 0;
-}
-
-.disciplinaItem, .topicoItem {
-  background-color: var(--cor-fundo-secundario);
-  margin-bottom: 0.5rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  transition: box-shadow 0.2s ease;
-}
-
-.disciplinaItem:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-}
-
-.disciplinaHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  cursor: pointer;
-}
-
-.disciplinaHeader h3 {
-  margin: 0;
-  font-weight: 600;
-}
-
-.actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem; /* Tamanho dos ícones */
-  color: #777;
-  margin-left: 0.75rem;
-  padding: 0.25rem;
-}
-.actions button:hover {
-  color: var(--cor-primaria);
-}
-
-.topicosContainer {
-  padding: 0 1rem 1rem 3rem; /* Indentação para os tópicos */
-}
-
-.topicoItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  border-top: 1px solid var(--cor-fundo-principal);
+.addStudyButton:hover {
+  background-color: #2ecc71;
 }

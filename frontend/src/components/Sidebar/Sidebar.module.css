@@ -1,3 +1,4 @@
+
 /* src/components/Sidebar/Sidebar.module.css */
 .sidebar {
   width: 250px;
@@ -7,15 +8,13 @@
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  justify-content: flex-start;
+  justify-content: space-between; /* Empurra o botão para baixo */
 }
 
-/* Nova classe para o LINK da logo */
 .logoLink {
-  display: block; /* Garante que o link se comporte como um bloco */
-  align-self: center; /* Centraliza o link (e a logo dentro dele) */
-   /* Adiciona o espaçamento inferior */
+  display: block;
+  align-self: center;
+  margin-bottom: 1rem;
 }
 
 /* A classe da IMAGEM agora só cuida do tamanho */
@@ -25,7 +24,6 @@
   align-self: top;
   margin-bottom: 0.5rem; /* Adiciona uma margem extra abaixo da logo */
 }
-
 .sidebar nav ul {
   list-style: none;
   padding: 0;
@@ -49,4 +47,21 @@
 .sidebar nav a.active {
   background-color: var(--cor-primaria);
   color: var(--cor-texto-branco);
+}
+
+/* Estilo para o botão de adicionar estudo */
+.addStudyButton {
+  background-color: var(--cor-secundaria);
+  color: var(--cor-texto-branco);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+
+.addStudyButton:hover {
+  background-color: #2ecc71;
 }

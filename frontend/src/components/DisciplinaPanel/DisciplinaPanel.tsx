@@ -42,7 +42,7 @@ export function DisciplinaPanel({ disciplinas, onSelect, onCreate, onUpdate, onD
           value={nomeNovaDisciplina}
           onChange={(e) => setNomeNovaDisciplina(e.target.value)}
         />
-        <button type="submit">Adicionar</button>
+        <button type="submit">Adicionarx</button>
       </form>
       <ul className={styles.list}>
         {disciplinas.map((disciplina) => (

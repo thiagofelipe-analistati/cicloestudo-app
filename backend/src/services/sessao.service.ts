@@ -1,8 +1,9 @@
+// src/services/sessao.service.ts
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-// Omitimos os campos automáticos e de relacionamento do tipo de entrada
 type SessaoCreateData = {
+  data: string | Date;
   tempoEstudado: number;
   categoria: string;
   totalQuestoes?: number;
@@ -18,6 +19,7 @@ export const sessaoService = {
   create: async (data: SessaoCreateData) => {
     return await prisma.sessaoEstudo.create({
       data: {
+        data: new Date(data.data),
         tempoEstudado: data.tempoEstudado,
         categoria: data.categoria,
         totalQuestoes: data.totalQuestoes,
@@ -31,9 +33,35 @@ export const sessaoService = {
     });
   },
 
-  getAll: async () => {
+  getAll: async (filters?: {
+    disciplinaId?: string;
+    dataInicio?: string;
+    dataFim?: string;
+  }) => {
+    const where: any = {};
+
+    if (filters?.disciplinaId) {
+      where.disciplinaId = filters.disciplinaId;
+    }
+
+    if (filters?.dataInicio || filters?.dataFim) {
+      where.data = {};
+      if (filters.dataInicio) {
+        where.data.gte = new Date(filters.dataInicio); // Greater Than or Equal
+      }
+      if (filters.dataFim) {
+        const dataFimAjustada = new Date(filters.dataFim);
+        dataFimAjustada.setUTCHours(23, 59, 59, 999); // Ajusta para o final do dia em UTC
+        where.data.lte = dataFimAjustada; // Less Than or Equal
+      }
+    }
+
     return await prisma.sessaoEstudo.findMany({
-      // Ordena as sessões da mais recente para a mais antiga
+      where,
+      include: {
+        disciplina: { select: { nome: true } },
+        topico: { select: { nome: true } },
+      },
       orderBy: { data: 'desc' },
     });
   },

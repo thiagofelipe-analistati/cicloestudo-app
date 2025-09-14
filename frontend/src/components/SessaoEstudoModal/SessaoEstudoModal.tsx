@@ -1,0 +1,140 @@
+// src/components/SessaoEstudoModal/SessaoEstudoModal.tsx
+import { useState, useEffect, FormEvent } from 'react';
+import Modal from 'react-modal';
+import styles from './SessaoEstudoModal.module.css';
+import type { Disciplina } from '../../services/disciplinaService';
+import type { Topico } from '../../services/topicoService';
+import { getTopicosByDisciplina } from '../../services/topicoService';
+import { createSessaoEstudo } from '../../services/sessaoService';
+
+interface SessaoEstudoModalProps {
+  isOpen: boolean;
+  onRequestClose: () => void;
+  disciplinas: Disciplina[];
+  initialTimeInSeconds: number;
+}
+
+const timeToSeconds = (timeString: string): number => {
+  if (!timeString) return 0;
+  const parts = timeString.split(':');
+  const hours = parseInt(parts[0], 10) || 0;
+  const minutes = parseInt(parts[1], 10) || 0;
+  const seconds = parseInt(parts[2], 10) || 0;
+  return (hours * 3600) + (minutes * 60) + seconds;
+};
+
+const secondsToTime = (totalSeconds: number): string => {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
+export function SessaoEstudoModal({ isOpen, onRequestClose, disciplinas, initialTimeInSeconds }: SessaoEstudoModalProps) {
+  const [formData, setFormData] = useState({
+    data: new Date().toISOString().split('T')[0],
+    disciplinaId: '',
+    topicoId: '',
+    categoria: 'Estudo',
+    tempoEstudado: '01:00:00',
+    totalQuestoes: 0,
+    acertosQuestoes: 0,
+    errosQuestoes: 0,
+  });
+  
+  const [topicos, setTopicos] = useState<Topico[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Preenche o tempo se vier do cronômetro, senão reseta
+      const tempoInicial = initialTimeInSeconds > 0 ? secondsToTime(initialTimeInSeconds) : '01:00:00';
+      setFormData(prev => ({
+        ...prev,
+        data: new Date().toISOString().split('T')[0],
+        tempoEstudado: tempoInicial
+      }));
+    }
+  }, [isOpen, initialTimeInSeconds]);
+  
+  useEffect(() => {
+    if (formData.disciplinaId) {
+      getTopicosByDisciplina(formData.disciplinaId).then(setTopicos);
+    } else {
+      setTopicos([]);
+    }
+  }, [formData.disciplinaId]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const dadosParaApi = { ...formData, tempoEstudado: timeToSeconds(formData.tempoEstudado) };
+    try {
+      await createSessaoEstudo(dadosParaApi);
+      onRequestClose();
+    } catch (error) {
+      console.error("Falha ao salvar a sessão:", error);
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onRequestClose={onRequestClose} className={styles.modal} overlayClassName={styles.overlay}>
+      <h2>Registro de Estudo</h2>
+      <form onSubmit={handleSubmit}>
+        <div className={styles.formGroup}>
+          <label htmlFor="data">Data do Estudo</label>
+          <input type="date" name="data" id="data" value={formData.data} onChange={handleChange} required />
+        </div>
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label htmlFor="tempoEstudado">Tempo (HH:MM:SS)</label>
+            <input type="time" step="1" name="tempoEstudado" id="tempoEstudado" value={formData.tempoEstudado} onChange={handleChange} required />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="totalQuestoes">Total Questões</label>
+            <input type="number" name="totalQuestoes" id="totalQuestoes" value={formData.totalQuestoes} onChange={handleChange} />
+          </div>
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="disciplinaId">Disciplina</label>
+          <select name="disciplinaId" id="disciplinaId" value={formData.disciplinaId} onChange={handleChange} required>
+            <option value="">Selecione uma disciplina</option>
+            {disciplinas.map(d => <option key={d.id} value={d.id}>{d.nome}</option>)}
+          </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="topicoId">Tópico</label>
+          <select name="topicoId" id="topicoId" value={formData.topicoId} onChange={handleChange} disabled={topicos.length === 0} required>
+            <option value="">Selecione um tópico</option>
+            {topicos.map(t => <option key={t.id} value={t.id}>{t.nome}</option>)}
+          </select>
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="categoria">Categoria</label>
+          <select name="categoria" id="categoria" value={formData.categoria} onChange={handleChange}>
+            <option value="Estudo">Estudo</option>
+            <option value="Revisão">Revisão</option>
+            <option value="Exercícios">Exercícios</option>
+          </select>
+        </div>
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label htmlFor="acertosQuestoes">Acertos</label>
+            <input type="number" name="acertosQuestoes" id="acertosQuestoes" value={formData.acertosQuestoes} onChange={handleChange} />
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="errosQuestoes">Erros</label>
+            <input type="number" name="errosQuestoes" id="errosQuestoes" value={formData.errosQuestoes} onChange={handleChange} />
+          </div>
+        </div>
+        <div className={styles.buttons}>
+          <button type="button" className={styles.cancelButton} onClick={onRequestClose}>Cancelar</button>
+          <button type="submit" className={styles.saveButton}>Salvar</button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
