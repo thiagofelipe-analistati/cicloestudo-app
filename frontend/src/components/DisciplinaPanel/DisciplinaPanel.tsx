@@ -1,5 +1,6 @@
 // src/components/DisciplinaPanel/DisciplinaPanel.tsx
-import { FormEvent, useState } from 'react';
+import { useState} from 'react';
+import type { FormEvent } from 'react';
 import type { Disciplina } from '../../services/disciplinaService';
 import styles from './DisciplinaPanel.module.css';
 

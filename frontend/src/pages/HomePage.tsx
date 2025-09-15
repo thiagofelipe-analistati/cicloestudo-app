@@ -1,5 +1,6 @@
 // src/pages/HomePage.tsx
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect} from 'react';
+import type { FormEvent } from 'react';
 import styles from './HomePage.module.css';
 import { FaPen, FaTrash } from 'react-icons/fa';
 import type { Disciplina } from '../services/disciplinaService';
