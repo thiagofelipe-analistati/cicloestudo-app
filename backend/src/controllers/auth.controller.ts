@@ -10,15 +10,15 @@ export const authController = {
         return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
       }
 
-      // Omitimos o usuário retornado para não expor a senha hasheada
       await authService.register(email, password);
       
       res.status(201).json({ message: 'Usuário criado com sucesso.' });
     } catch (error: any) {
       // Verifica se o erro é de e-mail já existente
-      if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
+      if (error?.code === 'P2002' && error?.meta?.target?.includes('email')) {
         return res.status(409).json({ error: 'Este email já está em uso.' });
       }
+      console.error(error); // Loga o erro real no servidor
       res.status(500).json({ error: 'Falha ao registrar usuário.' });
     }
   },
@@ -29,12 +29,9 @@ export const authController = {
       if (!email || !password) {
         return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
       }
-
       const result = await authService.login(email, password);
-
       res.status(200).json(result);
     } catch (error: any) {
-      // Usamos uma mensagem genérica por segurança
       res.status(401).json({ error: 'Email ou senha inválidos.' });
     }
   },

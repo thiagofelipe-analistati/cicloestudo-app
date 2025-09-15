@@ -7,10 +7,15 @@ const prisma = new PrismaClient();
 
 export const authService = {
   register: async (email: string, password: string) => {
+    // Criptografa a senha antes de salvar
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Prisma sabe que 'user' é um modelo válido por causa do 'prisma generate'
+    
+    // Cria o novo usuário no banco de dados
     return prisma.user.create({
-      data: { email, password: hashedPassword },
+      data: {
+        email,
+        password: hashedPassword,
+      },
     });
   },
 
@@ -25,8 +30,9 @@ export const authService = {
       throw new Error('Senha inválida');
     }
 
+    // Cria o token se a senha for válida
     const token = jwt.sign(
-      { userId: user.id },
+      { userId: user.id, email: user.email }, // Adicionamos o email ao token
       process.env.JWT_SECRET as string,
       { expiresIn: '1d' }
     );
