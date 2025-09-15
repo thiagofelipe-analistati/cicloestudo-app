@@ -1,9 +1,9 @@
 // src/pages/DisciplinasPage.tsx
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import styles from './HomePage.module.css';
+import styles from './HomePage.module.css'; // Pode manter este estilo ou criar um novo
 import { FaPen, FaTrash } from 'react-icons/fa';
-import { useData } from '../contexts/DataContext';
+import { useData } from '../contexts/DataContext'; // <-- MUDANÇA PRINCIPAL: USA O CONTEXTO
 import { createDisciplina, updateDisciplina, deleteDisciplina } from '../services/disciplinaService';
 import type { Topico } from '../services/topicoService';
 import { getTopicosByDisciplina, createTopico, updateTopico, deleteTopico } from '../services/topicoService';
@@ -12,6 +12,7 @@ export function DisciplinasPage() {
   // Pega os dados e a função de recarregar do nosso novo contexto global
   const { disciplinas, refetchData } = useData();
   
+  // O resto dos estados e funções são locais para esta página e continuam os mesmos
   const [topicos, setTopicos] = useState<Record<string, Topico[]>>({});
   const [expandedDisciplinaId, setExpandedDisciplinaId] = useState<string | null>(null);
   const [isAddingDisciplina, setIsAddingDisciplina] = useState(false);
@@ -41,7 +42,7 @@ export function DisciplinasPage() {
     await createDisciplina(nomeNovaDisciplina);
     setNomeNovaDisciplina('');
     setIsAddingDisciplina(false);
-    refetchData(); // Chama a função do contexto para atualizar os dados
+    refetchData(); // Chama a função do contexto para atualizar os dados globais
   };
 
   const handleUpdateDisciplina = async (e: FormEvent) => {
@@ -49,7 +50,7 @@ export function DisciplinasPage() {
     if (!editingDisciplina || !editingDisciplina.nome.trim()) return;
     await updateDisciplina(editingDisciplina.id, editingDisciplina.nome);
     setEditingDisciplina(null);
-    refetchData(); // Chama a função do contexto para atualizar os dados
+    refetchData(); // Chama a função do contexto para atualizar os dados globais
   };
   
   const handleDeleteDisciplina = async (disciplinaId: string) => {
@@ -58,7 +59,7 @@ export function DisciplinasPage() {
       if (expandedDisciplinaId === disciplinaId) {
         setExpandedDisciplinaId(null);
       }
-      refetchData(); // Chama a função do contexto para atualizar os dados
+      refetchData(); // Chama a função do contexto para atualizar os dados globais
     }
   };
 

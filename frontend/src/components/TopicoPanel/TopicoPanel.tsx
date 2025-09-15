@@ -1,5 +1,6 @@
 // src/components/TopicoPanel/TopicoPanel.tsx
-import { FormEvent, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import type { Disciplina } from '../../services/disciplinaService';
 import type { Topico } from '../../services/topicoService';
 import styles from './TopicoPanel.module.css';

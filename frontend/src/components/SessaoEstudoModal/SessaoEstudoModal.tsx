@@ -1,5 +1,6 @@
 // src/components/SessaoEstudoModal/SessaoEstudoModal.tsx
-import { useState, useEffect, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import Modal from 'react-modal';
 import styles from './SessaoEstudoModal.module.css';
 import type { Disciplina } from '../../services/disciplinaService';
