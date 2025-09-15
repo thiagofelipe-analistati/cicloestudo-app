@@ -1,8 +1,20 @@
-
-// src/services/sessao.service.ts
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-// ... (type SessaoCreateData)
+
+// A definição do tipo precisa estar aqui, antes de ser usada.
+type SessaoCreateData = {
+  data: string | Date;
+  tempoEstudado: number;
+  categoria: string;
+  totalQuestoes?: number;
+  acertosQuestoes?: number;
+  errosQuestoes?: number;
+  paginasLidas?: number;
+  comentarios?: string;
+  disciplinaId: string;
+  topicoId?: string;
+};
+
 export const sessaoService = {
   create: async (data: SessaoCreateData, userId: string) => {
     return await prisma.sessaoEstudo.create({
@@ -21,8 +33,9 @@ export const sessaoService = {
       },
     });
   },
+
   getAll: async (filters: { disciplinaId?: string; dataInicio?: string; dataFim?: string; }, userId: string) => {
-    const where: any = { userId }; // Filtra sempre pelo usuário logado
+    const where: any = { userId };
 
     if (filters.disciplinaId) {
       where.disciplinaId = filters.disciplinaId;
