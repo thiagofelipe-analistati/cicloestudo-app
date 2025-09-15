@@ -1,5 +1,6 @@
 // src/pages/DisciplinasPage.tsx
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import styles from './HomePage.module.css';
 import { FaPen, FaTrash } from 'react-icons/fa';
 import { useData } from '../contexts/DataContext';
