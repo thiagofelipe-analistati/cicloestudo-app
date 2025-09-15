@@ -1,20 +1,21 @@
 // src/routes/index.tsx
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import { DashboardPage } from "../pages/DashboardPage.tsx";
 import { DisciplinasPage } from "../pages/DisciplinasPage.tsx";
 import { HistoricoPage } from "../pages/HistoricoPage.tsx";
 import { LoginPage } from "../pages/LoginPage.tsx";
-import { RegisterPage } from "../pages/RegisterPage.tsx"; // <-- 1. IMPORTE A PÁGINA DE REGISTRO
+import { RegisterPage } from "../pages/RegisterPage.tsx";
 import { ProtectedRoute } from "./ProtectedRoute.tsx";
 
-const router = createBrowserRouter([
+// A variável 'router' agora é exportada diretamente
+export const router = createBrowserRouter([
   // Rotas públicas (não protegidas)
   {
     path: "/login",
     element: <LoginPage />,
   },
-  { // <-- 2. ADICIONE A NOVA ROTA DE REGISTRO AQUI
+  {
     path: "/register",
     element: <RegisterPage />,
   },
@@ -22,11 +23,11 @@ const router = createBrowserRouter([
   // Rotas privadas (protegidas)
   {
     path: "/",
-    element: <ProtectedRoute />,
+    element: <ProtectedRoute />, // O "segurança" fica aqui
     children: [
       {
         path: "/",
-        element: <App />,
+        element: <App />, // O App com o menu só é renderizado se o usuário estiver logado
         children: [
           { index: true, element: <DashboardPage /> },
           { path: "disciplinas", element: <DisciplinasPage /> },
@@ -37,6 +38,4 @@ const router = createBrowserRouter([
   },
 ]);
 
-export function AppRoutes() {
-  return <RouterProvider router={router} />;
-}
+// A função <AppRoutes /> foi removida, pois agora usamos o RouterProvider diretamente no main.tsx
