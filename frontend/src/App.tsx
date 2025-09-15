@@ -21,7 +21,6 @@ function App() {
     setPrefilledTime(elapsedSeconds);
     setIsSessaoModalOpen(true);
   };
-
   const handleOpenSessaoModal = () => {
     setPrefilledTime(0);
     setIsSessaoModalOpen(true);
@@ -36,7 +35,6 @@ function App() {
           onOpenNewStudySession={handleOpenSessaoModal}
         />
         <main className={styles.mainContent}>
-          {/* O Outlet agora não passa mais o 'context' */}
           <Outlet />
         </main>
       </div>
@@ -52,7 +50,7 @@ function App() {
         onRequestClose={() => setIsSessaoModalOpen(false)}
         disciplinas={disciplinas}
         initialTimeInSeconds={prefilledTime}
-        onSessionSaved={refetchData} // Ao salvar, chama a função do contexto
+        onSessionSaved={refetchData}
       />
     </div>
   );
