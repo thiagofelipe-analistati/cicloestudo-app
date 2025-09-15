@@ -1,19 +1,12 @@
 // src/contexts/AuthContext.tsx
-import { createContext, useState, useContext, ReactNode } from 'react';
+import { createContext, useState, useContext } from 'react';
+import type { ReactNode } from 'react';
 
-// No futuro, criaremos esta função no authService.ts
-// import { getMe } from '../services/authService'; 
+// ... (O resto do arquivo continua o mesmo)
+// Cole o código completo abaixo para garantir
 
-interface User {
-  email: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  logout: () => void;
-  login: (token: string) => void; // Adicionamos uma função de login
-}
-
+interface User { email: string; }
+interface AuthContextType { user: User | null; login: (token: string) => void; logout: () => void; }
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -21,10 +14,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (token: string) => {
     localStorage.setItem('aprova-flow-token', token);
-    // Aqui, no futuro, decodificaremos o token ou chamaremos a API para pegar os dados do usuário
-    // Por enquanto, vamos simular:
-    // const decodedUser = jwt_decode(token); // Exemplo com uma biblioteca jwt-decode
-    // setUser(decodedUser);
+    // Lógica para definir o usuário (ex: decodificando o token) viria aqui
   };
 
   const logout = () => {

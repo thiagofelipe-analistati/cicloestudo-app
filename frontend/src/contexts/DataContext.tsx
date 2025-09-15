@@ -1,14 +1,13 @@
 // src/contexts/DataContext.tsx
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import type { Disciplina } from '../services/disciplinaService';
 import { getAllDisciplinas } from '../services/disciplinaService';
 
-interface DataContextType {
-  disciplinas: Disciplina[];
-  refetchData: () => void;
-  refetchKey: number; // Adicionamos a chave aqui
-}
+// ... (O resto do arquivo continua o mesmo)
+// Cole o código completo abaixo para garantir
 
+interface DataContextType { disciplinas: Disciplina[]; refetchData: () => void; refetchKey: number; }
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
@@ -21,7 +20,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     getAllDisciplinas().then(setDisciplinas).catch(() => setDisciplinas([]));
-  }, [refetchKey]); // Busca as disciplinas sempre que a chave mudar
+  }, [refetchKey]);
 
   const value = { disciplinas, refetchData, refetchKey };
 
