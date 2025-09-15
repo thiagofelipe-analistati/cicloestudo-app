@@ -1,3 +1,4 @@
+// src/prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -7,13 +8,26 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model User {
+  id        String         @id @default(uuid())
+  email     String         @unique
+  password  String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  disciplinas Disciplina[]
+  topicos     Topico[]
+  sessoes     SessaoEstudo[]
+}
+
 model Disciplina {
   id        String         @id @default(uuid())
-  nome      String         @unique
+  nome      String
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   topicos   Topico[]
   sessoes   SessaoEstudo[]
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
 }
 
 model Topico {
@@ -26,14 +40,16 @@ model Topico {
   errosQuestoes   Int            @default(0)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-  disciplina      Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade) // <-- ADICIONADO AQUI
+  disciplina      Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
   disciplinaId    String
   sessoes         SessaoEstudo[]
+  user            User           @relation(fields: [userId], references: [id])
+  userId          String
 }
 
 model SessaoEstudo {
   id              String    @id @default(uuid())
-  data            DateTime  @default(now())
+  data            DateTime
   tempoEstudado   Int
   categoria       String
   totalQuestoes   Int?
@@ -41,10 +57,12 @@ model SessaoEstudo {
   errosQuestoes   Int?
   paginasLidas    Int?
   comentarios     String?
-  createdAt       DateTime 
+  createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  disciplina      Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade) // <-- ADICIONADO AQUI
+  disciplina      Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
   disciplinaId    String
-  topico          Topico?    @relation(fields: [topicoId], references: [id])
+  topico          Topico?    @relation(fields: [topicoId], references: [id], onDelete: SetNull)
   topicoId        String?
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
 }

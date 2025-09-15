@@ -1,0 +1,50 @@
+/* src/pages/LoginPage.module.css */
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: var(--cor-fundo-principal);
+}
+.formContainer {
+  background-color: var(--cor-fundo-secundario);
+  padding: 2rem 3rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+.formGroup {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.formGroup input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.error {
+  color: #e74c3c;
+  margin-bottom: 1rem;
+}
+.formContainer button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-branco);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.link {
+  margin-top: 1.5rem;
+}

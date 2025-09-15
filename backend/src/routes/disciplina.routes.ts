@@ -2,9 +2,10 @@
 import { Router } from 'express';
 import { disciplinaController } from '../controllers/disciplina.controller';
 import topicoRoutes from './topico.routes';
+import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
-
+router.use(authenticateToken); 
 router.post('/', disciplinaController.create);
 router.get('/', disciplinaController.getAll);
 

@@ -1,16 +1,15 @@
 // src/pages/HistoricoPage.tsx
 import { useState, useEffect } from 'react';
 import styles from './HistoricoPage.module.css';
-import type { Disciplina } from '../services/disciplinaService';
-import { getAllDisciplinas } from '../services/disciplinaService';
+import { useData } from '../contexts/DataContext'; // <-- 1. USA O NOVO CONTEXTO
 import type { SessaoEstudo } from '../services/sessaoService';
 import { getAllSessoes } from '../services/sessaoService';
 
 const formatTime = (seconds: number): string => {
-  if (isNaN(seconds) || seconds < 0) return "00:00";
+  if (isNaN(seconds) || seconds < 0) return "00h00min";
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  return `${String(h).padStart(2, '0')}h${String(m).padStart(2, '0')}min`;
 };
 
 const formatDate = (dateValue: Date | string) => {
@@ -20,92 +19,80 @@ const formatDate = (dateValue: Date | string) => {
 
 export function HistoricoPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
-  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [carregando, setCarregando] = useState(true);
-
   const [filters, setFilters] = useState({
     disciplinaId: '',
     dataInicio: '',
     dataFim: '',
   });
+  
+  // 2. PEGA OS DADOS E A CHAVE DE ATUALIZAÇÃO DO CONTEXTO GLOBAL
+  const { disciplinas, refetchKey } = useData();
 
-  const fetchSessoes = async () => {
+  // Este useEffect agora reage aos filtros e à chave de atualização global
+  useEffect(() => {
     setCarregando(true);
-    try {
-      const params: any = {};
-      if (filters.disciplinaId) params.disciplinaId = filters.disciplinaId;
-      if (filters.dataInicio) params.dataInicio = filters.dataInicio;
-      if (filters.dataFim) params.dataFim = filters.dataFim;
+    const params: any = {};
+    if (filters.disciplinaId) params.disciplinaId = filters.disciplinaId;
+    if (filters.dataInicio) params.dataInicio = filters.dataInicio;
+    if (filters.dataFim) params.dataFim = filters.dataFim;
+    
+    getAllSessoes(params)
+      .then(setSessoes)
+      .catch(err => console.error("Erro ao buscar sessões:", err))
+      .finally(() => setCarregando(false));
       
-      const fetchedSessoes = await getAllSessoes(params);
-      setSessoes(fetchedSessoes);
-    } catch (error) {
-      console.error("Erro ao buscar sessões:", error);
-    } finally {
-      setCarregando(false);
-    }
-  };
+  }, [filters, refetchKey]);
 
-  useEffect(() => {
-    getAllDisciplinas().then(setDisciplinas);
-  }, []);
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({...prev, [name]: value }));
+  }
 
-  useEffect(() => {
-    fetchSessoes();
-  }, [filters]);
-
-  const totalTempoEstudado = sessoes.reduce((acc, sessao) => acc + sessao.tempoEstudado, 0);
-
-  // Lógica do Desempenho atualizada para incluir erros
-  const totaisQuestoes = sessoes.reduce((acc, sessao) => {
+  const totais = sessoes.reduce((acc, sessao) => {
+    acc.tempo += sessao.tempoEstudado;
     acc.questoes += sessao.totalQuestoes || 0;
     acc.acertos += sessao.acertosQuestoes || 0;
-    acc.erros += sessao.errosQuestoes || 0; // <-- Adicionado cálculo de erros
+    acc.erros += sessao.errosQuestoes || 0;
     return acc;
-  }, { questoes: 0, acertos: 0, erros: 0 }); // <-- Adicionado erros ao objeto inicial
+  }, { tempo: 0, questoes: 0, acertos: 0, erros: 0 });
 
-  const percentualAcerto = totaisQuestoes.questoes > 0 
-    ? (totaisQuestoes.acertos / totaisQuestoes.questoes) * 100 
+  const percentualAcerto = totais.questoes > 0 
+    ? (totais.acertos / totais.questoes) * 100 
     : 0;
-
-  if (carregando) return <div className={styles.container}>Carregando histórico...</div>;
-
+  
   return (
     <div className={styles.container}>
       <h1>Histórico de Estudos</h1>
-
       <div className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
           <h3>Tempo de Estudo</h3>
-          <p>{formatTime(totalTempoEstudado)}</p>
+          <p>{formatTime(totais.tempo)}</p>
         </div>
-
         <div className={styles.summaryCard}>
           <h3>Desempenho</h3>
           <p>{percentualAcerto.toFixed(1)}%</p>
-          {/* Detalhes de acertos e erros adicionados aqui */}
           <div className={styles.performanceDetails}>
-            <span>Certas: {totaisQuestoes.acertos}</span>
+            <span>Certas: {totais.acertos}</span>
             <span>/</span>
-            <span className={styles.errorCount}>Erradas: {totaisQuestoes.erros}</span>
+            <span className={styles.errorCount}>Erradas: {totais.erros}</span>
           </div>
         </div>
-        
         <div className={styles.summaryCard}>
           <h3>Sessões Realizadas</h3>
           <p>{sessoes.length}</p>
         </div>
       </div>
-
       <div className={styles.filters}>
-        <select name="disciplinaId" value={filters.disciplinaId} onChange={(e) => setFilters(prev => ({...prev, disciplinaId: e.target.value}))}>
+        <select name="disciplinaId" value={filters.disciplinaId} onChange={handleFilterChange}>
           <option value="">Todas as Disciplinas</option>
+          {/* A lista de disciplinas agora vem do contexto, sempre atualizada! */}
           {disciplinas.map(d => (
             <option key={d.id} value={d.id}>{d.nome}</option>
           ))}
         </select>
-        <input name="dataInicio" type="date" value={filters.dataInicio} onChange={(e) => setFilters(prev => ({...prev, dataInicio: e.target.value}))} />
-        <input name="dataFim" type="date" value={filters.dataFim} onChange={(e) => setFilters(prev => ({...prev, dataFim: e.target.value}))} />
+        <input name="dataInicio" type="date" value={filters.dataInicio} onChange={handleFilterChange} />
+        <input name="dataFim" type="date" value={filters.dataFim} onChange={handleFilterChange} />
       </div>
 
       <div className={styles.sessionList}>

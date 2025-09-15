@@ -1,6 +1,5 @@
 // src/pages/DashboardPage.tsx
 import { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
 import styles from './DashboardPage.module.css';
 import { KpiCard } from '../components/KpiCard/KpiCard';
 import { DisciplinaSummaryPanel } from '../components/DisciplinaSummaryPanel/DisciplinaSummaryPanel';
@@ -8,6 +7,7 @@ import type { SessaoEstudo } from '../services/sessaoService';
 import { getAllSessoes } from '../services/sessaoService';
 import type { DisciplinaSummary } from '../services/disciplinaService';
 import { getDisciplinasSummary } from '../services/disciplinaService';
+import { useData } from '../contexts/DataContext';
 
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || seconds < 0) return "00h00min";
@@ -20,11 +20,8 @@ export function DashboardPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
   const [summary, setSummary] = useState<DisciplinaSummary[]>([]);
   const [carregando, setCarregando] = useState(true);
-  
-  // Pega a chave de atualização vinda do App.tsx
-  const { refetchKey } = useOutletContext<{ refetchKey: number }>();
+  const { refetchKey } = useData(); // Usa o contexto para ouvir por atualizações
 
-  // O useEffect agora depende da 'refetchKey'. Sempre que ela mudar, ele executa de novo.
   useEffect(() => {
     setCarregando(true);
     Promise.all([
@@ -35,7 +32,7 @@ export function DashboardPage() {
       setSummary(summaryData);
     }).catch(err => console.error("Erro ao buscar dados do dashboard:", err))
       .finally(() => setCarregando(false));
-  }, [refetchKey]);
+  }, [refetchKey]); // Depende da refetchKey para re-executar
 
   const totais = sessoes.reduce((acc, sessao) => {
     acc.tempo += sessao.tempoEstudado;

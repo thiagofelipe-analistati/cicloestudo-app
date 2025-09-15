@@ -3,28 +3,28 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const disciplinaService = {
-  create: async (nome: string) => {
-    return await prisma.disciplina.create({ data: { nome } });
+  create: async (nome: string, userId: string) => {
+    return await prisma.disciplina.create({ data: { nome, userId } });
   },
-  getAll: async () => {
-    return await prisma.disciplina.findMany({ orderBy: { nome: 'asc' } });
+  getAll: async (userId: string) => {
+    return await prisma.disciplina.findMany({ where: { userId }, orderBy: { nome: 'asc' } });
   },
-  getById: async (id: string) => {
+  getById: async (id: string, userId: string) => {
+    return await prisma.disciplina.findFirst({ where: { id, userId } });
+  },
+  update: async (id: string, nome: string, userId: string) => {
+    await prisma.disciplina.updateMany({ where: { id, userId }, data: { nome } });
     return await prisma.disciplina.findUnique({ where: { id } });
   },
-  update: async (id: string, nome: string) => {
-    return await prisma.disciplina.update({ where: { id }, data: { nome } });
+  delete: async (id: string, userId: string) => {
+    return await prisma.disciplina.deleteMany({ where: { id, userId } });
   },
-  delete: async (id: string) => {
-    return await prisma.disciplina.delete({ where: { id } });
-  },
-  getSummary: async () => {
+  getSummary: async (userId: string) => {
     const todasDisciplinas = await prisma.disciplina.findMany({
-      select: { id: true, nome: true },
-      orderBy: { nome: 'asc' },
+      where: { userId }, select: { id: true, nome: true }, orderBy: { nome: 'asc' },
     });
     const agregados = await prisma.sessaoEstudo.groupBy({
-      by: ['disciplinaId'],
+      by: ['disciplinaId'], where: { userId },
       _sum: { tempoEstudado: true, totalQuestoes: true, acertosQuestoes: true },
     });
     const summary = todasDisciplinas.map(disciplina => {

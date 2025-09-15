@@ -1,22 +1,10 @@
+
 // src/services/sessao.service.ts
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-
-type SessaoCreateData = {
-  data: string | Date;
-  tempoEstudado: number;
-  categoria: string;
-  totalQuestoes?: number;
-  acertosQuestoes?: number;
-  errosQuestoes?: number;
-  paginasLidas?: number;
-  comentarios?: string;
-  disciplinaId: string;
-  topicoId?: string;
-};
-
+// ... (type SessaoCreateData)
 export const sessaoService = {
-  create: async (data: SessaoCreateData) => {
+  create: async (data: SessaoCreateData, userId: string) => {
     return await prisma.sessaoEstudo.create({
       data: {
         data: new Date(data.data),
@@ -27,15 +15,19 @@ export const sessaoService = {
         errosQuestoes: data.errosQuestoes,
         paginasLidas: data.paginasLidas,
         comentarios: data.comentarios,
-        disciplina: { connect: { id: data.disciplinaId } },
-        topico: data.topicoId ? { connect: { id: data.topicoId } } : undefined,
+        userId: userId,
+        disciplinaId: data.disciplinaId,
+        topicoId: data.topicoId || null,
       },
     });
   },
-  getAll: async (filters?: { disciplinaId?: string; dataInicio?: string; dataFim?: string; }) => {
-    const where: any = {};
-    if (filters?.disciplinaId) { where.disciplinaId = filters.disciplinaId; }
-    if (filters?.dataInicio || filters?.dataFim) {
+  getAll: async (filters: { disciplinaId?: string; dataInicio?: string; dataFim?: string; }, userId: string) => {
+    const where: any = { userId }; // Filtra sempre pelo usuário logado
+
+    if (filters.disciplinaId) {
+      where.disciplinaId = filters.disciplinaId;
+    }
+    if (filters.dataInicio || filters.dataFim) {
       where.data = {};
       if (filters.dataInicio) { where.data.gte = new Date(filters.dataInicio); }
       if (filters.dataFim) {

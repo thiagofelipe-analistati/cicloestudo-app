@@ -3,6 +3,8 @@ import express from 'express';
 import cors from 'cors';
 import disciplinaRoutes from './routes/disciplina.routes';
 import sessaoRoutes from './routes/sessao.routes';
+import authRoutes from './routes/auth.routes'; // <-- 1. IMPORTE AS ROTAS DE AUTENTICAÇÃO
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -13,11 +15,11 @@ app.get('/api', (req, res) => {
   res.send('API do Ciclo de Estudos funcionando!');
 });
 
-// Agora esta única linha gerencia tanto as disciplinas quanto os tópicos aninhados
-app.use('/api/disciplinas', disciplinaRoutes);
+// --- ROTAS PÚBLICAS (NÃO EXIGEM AUTENTICAÇÃO) ---
+app.use('/api/auth', authRoutes); // <-- 2. USE AS ROTAS DE AUTENTICAÇÃO
 
-// A linha antiga 'app.use('/api/disciplinas/:disciplinaId/topicos', topicoRoutes)' foi removida daqui.
-// --- ADICIONE A NOVA ROTA ABAIXO ---
+// --- ROTAS PROTEGIDAS (EXIGIRÃO AUTENTICAÇÃO NO FUTURO) ---
+app.use('/api/disciplinas', disciplinaRoutes);
 app.use('/api/sessoes', sessaoRoutes);
 
 app.listen(PORT, () => {
