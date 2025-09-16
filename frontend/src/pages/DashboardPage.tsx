@@ -1,4 +1,3 @@
-// src/pages/DashboardPage.tsx
 import { useState, useEffect } from 'react';
 import styles from './DashboardPage.module.css';
 import { KpiCard } from '../components/KpiCard/KpiCard';
@@ -20,19 +19,18 @@ export function DashboardPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
   const [summary, setSummary] = useState<DisciplinaSummary[]>([]);
   const [carregando, setCarregando] = useState(true);
-  const { refetchKey } = useData(); // Usa o contexto para ouvir por atualizações
+  const { refetchKey } = useData();
 
   useEffect(() => {
     setCarregando(true);
-    Promise.all([
-      getAllSessoes({}),
-      getDisciplinasSummary()
-    ]).then(([sessoesData, summaryData]) => {
-      setSessoes(sessoesData);
-      setSummary(summaryData);
-    }).catch(err => console.error("Erro ao buscar dados do dashboard:", err))
+    Promise.all([getAllSessoes({}), getDisciplinasSummary()])
+      .then(([sessoesData, summaryData]) => {
+        setSessoes(sessoesData);
+        setSummary(summaryData);
+      })
+      .catch(err => console.error("Erro ao buscar dados do dashboard:", err))
       .finally(() => setCarregando(false));
-  }, [refetchKey]); // Depende da refetchKey para re-executar
+  }, [refetchKey]);
 
   const totais = sessoes.reduce((acc, sessao) => {
     acc.tempo += sessao.tempoEstudado;
@@ -45,17 +43,19 @@ export function DashboardPage() {
   const percentualAcerto = totais.questoes > 0
     ? (totais.acertos / totais.questoes) * 100
     : 0;
-  
-  if (carregando) {
-    return <div className={styles.container}>Carregando dados do dashboard...</div>;
-  }
+
+  if (carregando) return <div className={styles.container}>Carregando dados do dashboard...</div>;
 
   return (
     <div className={styles.container}>
       <h1>Dashboard</h1>
       <div className={styles.grid}>
         <KpiCard title="Tempo de Estudo" value={formatTime(totais.tempo)} />
-        <KpiCard title="Desempenho" value={`${percentualAcerto.toFixed(1)}%`} details={<span>Certas: {totais.acertos} / <span className={styles.errorCount}>Erradas: {totais.erros}</span></span>} />
+        <KpiCard 
+          title="Desempenho" 
+          value={`${percentualAcerto.toFixed(1)}%`} 
+          details={<span>Certas: {totais.acertos} / <span className={styles.errorCount}>Erradas: {totais.erros}</span></span>} 
+        />
         <KpiCard title="Progresso no Edital" value="-" details={<span>- Tópicos Concluídos</span>} />
         <KpiCard title="Sessões Realizadas" value={sessoes.length.toString()} />
       </div>
