@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 import { register } from '../services/authService';
+import logoAprovaFlow from '../../assets/logo.png';
 
 export function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -39,6 +40,7 @@ export function RegisterPage() {
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
+        <img src={logoAprovaFlow} alt="Logo AprovaFlow" className={styles.logo} />
         <h2>Cadastro - AprovaFlow</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>

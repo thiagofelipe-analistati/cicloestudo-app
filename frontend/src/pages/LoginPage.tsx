@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 import { login as loginService } from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
+import logoAprovaFlow from '../../assets/logo.png';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -29,6 +30,7 @@ export function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={styles.formContainer}>
+        <img src={logoAprovaFlow} alt="Logo AprovaFlow" className={styles.logo} />
         <h2>Login - AprovaFlow</h2>
         {/* Correção 2: O formulário agora usa as variáveis e funções */}
         <form onSubmit={handleSubmit}>
