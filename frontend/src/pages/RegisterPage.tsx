@@ -4,7 +4,7 @@ import type { FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 import { register } from '../services/authService';
-import logoAprovaFlow from '../../assets/logo.png';
+import logoAprovaFlow from '../assets/logo.png';
 
 export function RegisterPage() {
   const [email, setEmail] = useState('');

@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import styles from './LoginPage.module.css';
 import { login as loginService } from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
-import logoAprovaFlow from '../../assets/logo.png';
+import logoAprovaFlow from '../assets/logo.png';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
