@@ -41,7 +41,7 @@ export function RegisterPage() {
     <div className={styles.container}>
       <div className={styles.formContainer}>
         <img src={logoAprovaFlow} alt="Logo AprovaFlow" className={styles.logo} />
-        <h2>Cadastro - AprovaFlow</h2>
+        <h2>Cadastro</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label htmlFor="email">Email</label>

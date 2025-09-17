@@ -31,7 +31,7 @@ export function LoginPage() {
     <div className={styles.container}>
       <div className={styles.formContainer}>
         <img src={logoAprovaFlow} alt="Logo AprovaFlow" className={styles.logo} />
-        <h2>Login - AprovaFlow</h2>
+        <h2>Login</h2>
         {/* Correção 2: O formulário agora usa as variáveis e funções */}
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
