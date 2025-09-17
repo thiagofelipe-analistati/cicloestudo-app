@@ -1,25 +1,23 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import type { Disciplina } from '../services/disciplinaService';
 import { getAllDisciplinas } from '../services/disciplinaService';
 
 interface DataContextType {
   disciplinas: Disciplina[];
   refetchData: () => void;
-  refetchKey: number;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-  const [refetchKey, setRefetchKey] = useState(0);
 
   const refetchData = useCallback(async () => {
     if (localStorage.getItem('aprova-flow-token')) {
       try {
         const data = await getAllDisciplinas();
         setDisciplinas(data);
-        setRefetchKey(prev => prev + 1); // incrementa a chave a cada refetch
       } catch (error) {
         console.error("Falha ao buscar dados no DataProvider:", error);
         setDisciplinas([]);
@@ -31,7 +29,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     refetchData();
   }, [refetchData]);
 
-  const value = { disciplinas, refetchData, refetchKey };
+  const value = { disciplinas, refetchData };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };

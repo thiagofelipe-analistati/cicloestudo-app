@@ -25,7 +25,7 @@ export function HistoricoPage() {
     dataFim: '',
   });
 
-  const { disciplinas, refetchKey } = useData();
+  const { disciplinas, refetchData } = useData();
 
   useEffect(() => {
     setCarregando(true);
@@ -38,12 +38,12 @@ export function HistoricoPage() {
       .then(setSessoes)
       .catch(err => console.error("Erro ao buscar sessões:", err))
       .finally(() => setCarregando(false));
-  }, [filters, refetchKey]);
+  }, [filters, refetchData]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
-  };
+  }
 
   const totais = sessoes.reduce((acc, sessao) => {
     acc.tempo += sessao.tempoEstudado;
@@ -53,14 +53,27 @@ export function HistoricoPage() {
     return acc;
   }, { tempo: 0, questoes: 0, acertos: 0, erros: 0 });
 
-  const percentualAcerto = totais.questoes > 0
-    ? (totais.acertos / totais.questoes) * 100
-    : 0;
-
   return (
     <div className={styles.container}>
       <h1>Histórico de Estudos</h1>
-
+      <div className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <h3>Tempo de Estudo</h3>
+          <p>{formatTime(totais.tempo)}</p>
+        </div>
+        <div className={styles.summaryCard}>
+          <h3>Desempenho</h3>
+          <div className={styles.performanceDetails}>
+            <span>Certas: {totais.acertos}</span>
+            <span>/</span>
+            <span className={styles.errorCount}>Erradas: {totais.erros}</span>
+          </div>
+        </div>
+        <div className={styles.summaryCard}>
+          <h3>Sessões Realizadas</h3>
+          <p>{sessoes.length}</p>
+        </div>
+      </div>
       <div className={styles.filters}>
         <select name="disciplinaId" value={filters.disciplinaId} onChange={handleFilterChange}>
           <option value="">Todas as Disciplinas</option>
@@ -72,13 +85,13 @@ export function HistoricoPage() {
         <input name="dataFim" type="date" value={filters.dataFim} onChange={handleFilterChange} />
       </div>
 
-      {carregando ? (
-        <p>Carregando histórico...</p>
-      ) : sessoes.length === 0 ? (
-        <p>Nenhuma sessão de estudo encontrada.</p>
-      ) : (
-        <div className={styles.sessionList}>
-          {sessoes.map(sessao => (
+      <div className={styles.sessionList}>
+        {carregando ? (
+          <p>Carregando histórico...</p>
+        ) : sessoes.length === 0 ? (
+          <p>Nenhuma sessão de estudo encontrada.</p>
+        ) : (
+          sessoes.map(sessao => (
             <div key={sessao.id} className={styles.sessionCard}>
               <div className={styles.sessionHeader}>
                 <h4>{formatDate(sessao.data)} - {sessao.disciplina.nome}</h4>
@@ -86,15 +99,15 @@ export function HistoricoPage() {
               </div>
               <div className={styles.sessionDetails}>
                 <span><strong>Tempo:</strong> {formatTime(sessao.tempoEstudado)}</span>
-                {sessao.totalQuestoes && sessao.totalQuestoes > 0 && (
+                {sessao.totalQuestoes && sessao.totalQuestoes > 0 ? (
                   <span><strong>Questões:</strong> {sessao.acertosQuestoes}/{sessao.totalQuestoes}</span>
-                )}
+                ) : null}
                 <span><strong>Categoria:</strong> {sessao.categoria}</span>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 }
