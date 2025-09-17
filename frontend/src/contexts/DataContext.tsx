@@ -6,18 +6,21 @@ import { getAllDisciplinas } from '../services/disciplinaService';
 interface DataContextType {
   disciplinas: Disciplina[];
   refetchData: () => void;
+  refetchKey: number; // chave para forçar atualização global
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
+  const [refetchKey, setRefetchKey] = useState(0);
 
   const refetchData = useCallback(async () => {
     if (localStorage.getItem('aprova-flow-token')) {
       try {
         const data = await getAllDisciplinas();
         setDisciplinas(data);
+        setRefetchKey(prev => prev + 1); // incrementa para disparar updates
       } catch (error) {
         console.error("Falha ao buscar dados no DataProvider:", error);
         setDisciplinas([]);
@@ -29,7 +32,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     refetchData();
   }, [refetchData]);
 
-  const value = { disciplinas, refetchData };
+  const value = { disciplinas, refetchData, refetchKey };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };

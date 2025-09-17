@@ -1,22 +1,21 @@
-// src/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id        String         @id @default(uuid())
-  email     String         @unique
-  password  String
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id          String         @id @default(uuid())
+  email       String         @unique
+  password    String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   disciplinas Disciplina[]
-  topicos     Topico[]
   sessoes     SessaoEstudo[]
+  topicos     Topico[]
 }
 
 model Disciplina {
@@ -24,10 +23,10 @@ model Disciplina {
   nome      String
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
-  topicos   Topico[]
-  sessoes   SessaoEstudo[]
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessoes   SessaoEstudo[]
+  topicos   Topico[]
 }
 
 model Topico {
@@ -40,15 +39,15 @@ model Topico {
   errosQuestoes   Int            @default(0)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-  disciplina      Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
   disciplinaId    String
-  sessoes         SessaoEstudo[]
-  user            User           @relation(fields: [userId], references: [id])
   userId          String
+  sessoes         SessaoEstudo[]
+  disciplina      Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  user            User           @relation(fields: [userId], references: [id])
 }
 
 model SessaoEstudo {
-  id              String    @id @default(uuid())
+  id              String     @id @default(uuid())
   data            DateTime
   tempoEstudado   Int
   categoria       String
@@ -57,12 +56,12 @@ model SessaoEstudo {
   errosQuestoes   Int?
   paginasLidas    Int?
   comentarios     String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  disciplina      Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
   disciplinaId    String
-  topico          Topico?    @relation(fields: [topicoId], references: [id], onDelete: SetNull)
   topicoId        String?
-  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId          String
+  disciplina      Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  topico          Topico?    @relation(fields: [topicoId], references: [id])
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
