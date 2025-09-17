@@ -2,37 +2,24 @@
 .sidebar {
   width: 250px;
   background-color: var(--cor-fundo-secundario);
-  padding: 1.5rem;
   height: 100vh;
+  padding: 1.5rem;
   border-right: 1px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; 
+  justify-content: space-between;
+  transition: transform 0.3s ease-in-out;
 }
 
-/* Nova classe para a seção superior (logo e nav) */
-.topSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Centraliza horizontalmente os itens dentro desta seção */
-  margin-bottom: 2rem; /* Adiciona espaçamento entre a seção superior e a inferior (se houvesse) */
-}
-
-/* Classe para o LINK da logo */
 .logoLink {
-  display: block; /* Essencial para margin: auto funcionar */
-  margin: 0 auto 1.5rem auto; /* Centraliza horizontalmente e adiciona margem inferior */
-  text-align: center; /* Uma segurança extra para texto/imagens dentro do link */
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
-/* A classe da IMAGEM agora só cuida do tamanho */
 .logo {
-  height: 80px; /* O novo tamanho que você definiu */
-  width: auto;   /* Mantém a proporção */
-}
-
-.sidebar nav {
-  width: 100%; /* Garante que a nav ocupe a largura total para alinhamento dos links */
+  height: 100px;
+  width: auto;
 }
 
 .sidebar nav ul {
@@ -42,20 +29,53 @@
 }
 
 .sidebar nav a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  border-radius: var(--border-radius);
   text-decoration: none;
-  color: var(--cor-texto-principal);
+  color: var(--cor-texto-secundario);
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .sidebar nav a:hover {
   background-color: var(--cor-fundo-principal);
+  color: var(--cor-primaria);
 }
 
 .sidebar nav a.active {
   background-color: var(--cor-primaria);
   color: var(--cor-texto-branco);
+  box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+.addStudyButton {
+  background-color: var(--cor-secundaria);
+  color: var(--cor-texto-branco);
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+.addStudyButton:hover {
+  background-color: #2ecc71;
+}
+
+/* Estilos para o menu hambúrguer em telas pequenas */
+/* (A lógica para o menu hambúrguer será adicionada no futuro no .tsx) */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed; /* Fica por cima de tudo */
+    transform: translateX(-100%); /* Começa escondido */
+    z-index: 1000;
+  }
+  .sidebar.open {
+    transform: translateX(0); /* Mostra o menu */
+  }
 }

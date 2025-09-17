@@ -1,41 +1,25 @@
-/* frontend/src/App.module.css */
+/* src/App.module.css */
 .appContainer {
   display: flex;
-  min-height: 100vh; /* Garante que ocupe a altura total da viewport */
 }
 
 .contentWrapper {
-  flex-grow: 1; /* Permite que o wrapper ocupe o espaço restante */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .mainContent {
   flex-grow: 1;
-  padding: 1.5rem; /* Um pouco de padding para o conteúdo */
-  background-color: var(--color-background-light); /* Cor de fundo para o conteúdo */
+  overflow-y: auto; /* Adiciona scroll apenas na área de conteúdo */
+  padding: 1.5rem;
 }
 
-/* ------------------------------------------- */
-/* RESPONSIVIDADE GERAL              */
-/* ------------------------------------------- */
-
-/* Para telas menores que 768px (tablets e celulares) */
+/* Media Query para telas menores (ex: celulares) */
 @media (max-width: 768px) {
-  .appContainer {
-    flex-direction: column; /* Em telas pequenas, a sidebar fica acima do conteúdo */
-  }
-
-  .contentWrapper {
-    /* Não precisa de ajustes adicionais aqui, flex-direction column já está bom */
-  }
-
   .mainContent {
-    padding: 1rem; /* Menos padding em telas pequenas */
+    padding: 1rem;
   }
-}
-
-/* Para telas menores que 480px (celulares) */
-@media (max-width: 480px) {
-  /* Pode-se adicionar mais ajustes finos aqui, se necessário */
 }
