@@ -8,14 +8,15 @@ import { router } from './routes/index.tsx';
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { DataProvider } from './contexts/DataContext.tsx';
 
-Modal.setAppElement('#root');
+Modal.setAppElement(document.getElementById('root')!);
+
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <DataProvider>
-      <AuthProvider>
+    {/* <AuthProvider>
+      <DataProvider> */}
         <RouterProvider router={router} />
-      </AuthProvider>
-    </DataProvider>
+      {/* </DataProvider>
+    </AuthProvider> */}
   </React.StrictMode>,
 );
