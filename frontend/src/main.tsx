@@ -13,10 +13,11 @@ Modal.setAppElement(document.getElementById('root')!);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {/* <AuthProvider>
-      <DataProvider> */}
+    <DataProvider>
+      <AuthProvider>
         <RouterProvider router={router} />
-      {/* </DataProvider>
-    </AuthProvider> */}
+      </AuthProvider>
+    </DataProvider>
   </React.StrictMode>,
 );
+
