@@ -1,9 +1,11 @@
+// src/pages/HistoricoPage.tsx
 import { useState, useEffect } from 'react';
 import styles from './HistoricoPage.module.css';
 import { useData } from '../contexts/DataContext';
 import type { SessaoEstudo } from '../services/sessaoService';
 import { getAllSessoes } from '../services/sessaoService';
 
+// Funções Helper para formatação
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || seconds < 0) return "00h00min";
   const h = Math.floor(seconds / 3600);
@@ -19,13 +21,8 @@ const formatDate = (dateValue: Date | string) => {
 export function HistoricoPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
   const [carregando, setCarregando] = useState(true);
-  const [filters, setFilters] = useState({
-    disciplinaId: '',
-    dataInicio: '',
-    dataFim: '',
-  });
-
-  const { disciplinas, refetchKey } = useData();
+  const [filters, setFilters] = useState({ disciplinaId: '', dataInicio: '', dataFim: '' });
+  const { disciplinas, refetchData } = useData();
 
   useEffect(() => {
     setCarregando(true);
@@ -33,29 +30,32 @@ export function HistoricoPage() {
     if (filters.disciplinaId) params.disciplinaId = filters.disciplinaId;
     if (filters.dataInicio) params.dataInicio = filters.dataInicio;
     if (filters.dataFim) params.dataFim = filters.dataFim;
-
+    
     getAllSessoes(params)
       .then(setSessoes)
       .catch(err => console.error("Erro ao buscar sessões:", err))
       .finally(() => setCarregando(false));
-  }, [filters, refetchKey]);
+      
+  }, [filters, refetchData]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
+    setFilters(prev => ({...prev, [name]: value }));
+  }
 
-  const totais = sessoes.reduce(
-    (acc, sessao) => {
-      acc.tempo += sessao.tempoEstudado;
-      acc.questoes += sessao.totalQuestoes || 0;
-      acc.acertos += sessao.acertosQuestoes || 0;
-      acc.erros += sessao.errosQuestoes || 0;
-      return acc;
-    },
-    { tempo: 0, questoes: 0, acertos: 0, erros: 0 }
-  );
+  // --- LÓGICA DE CÁLCULO IDÊNTICA À DO DASHBOARD ---
+  const totais = sessoes.reduce((acc, sessao) => {
+    acc.tempo += sessao.tempoEstudado;
+    acc.questoes += sessao.totalQuestoes || 0;
+    acc.acertos += sessao.acertosQuestoes || 0;
+    acc.erros += sessao.errosQuestoes || 0;
+    return acc;
+  }, { tempo: 0, questoes: 0, acertos: 0, erros: 0 });
 
+  const percentualAcerto = totais.questoes > 0 
+    ? (totais.acertos / totais.questoes) * 100 
+    : 0;
+  
   return (
     <div className={styles.container}>
       <h1>Histórico de Estudos</h1>
@@ -64,20 +64,25 @@ export function HistoricoPage() {
           <h3>Tempo de Estudo</h3>
           <p>{formatTime(totais.tempo)}</p>
         </div>
+
+        {/* --- CARD DE DESEMPENHO ATUALIZADO --- */}
         <div className={styles.summaryCard}>
           <h3>Desempenho</h3>
+          <p>{percentualAcerto.toFixed(1)}%</p>
           <div className={styles.performanceDetails}>
             <span>Certas: {totais.acertos}</span>
             <span>/</span>
             <span className={styles.errorCount}>Erradas: {totais.erros}</span>
           </div>
         </div>
+        
         <div className={styles.summaryCard}>
           <h3>Sessões Realizadas</h3>
           <p>{sessoes.length}</p>
         </div>
       </div>
 
+      {/* Filtros e Lista de Sessões continuam aqui */}
       <div className={styles.filters}>
         <select name="disciplinaId" value={filters.disciplinaId} onChange={handleFilterChange}>
           <option value="">Todas as Disciplinas</option>
@@ -103,7 +108,7 @@ export function HistoricoPage() {
               </div>
               <div className={styles.sessionDetails}>
                 <span><strong>Tempo:</strong> {formatTime(sessao.tempoEstudado)}</span>
-                {sessao.totalQuestoes ? (
+                {sessao.totalQuestoes && sessao.totalQuestoes > 0 ? (
                   <span><strong>Questões:</strong> {sessao.acertosQuestoes}/{sessao.totalQuestoes}</span>
                 ) : null}
                 <span><strong>Categoria:</strong> {sessao.categoria}</span>

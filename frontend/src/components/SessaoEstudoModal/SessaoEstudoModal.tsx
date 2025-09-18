@@ -45,8 +45,7 @@ export function SessaoEstudoModal({ isOpen, onRequestClose, disciplinas, initial
     disciplinaId: '',
     topicoId: '',
     categoria: 'Estudo',
-    tempoEstudado: '01:00:00',
-    totalQuestoes: 0,
+    tempoEstudado: '00:00:00',
     acertosQuestoes: 0,
     errosQuestoes: 0,
   });
@@ -81,11 +80,16 @@ export function SessaoEstudoModal({ isOpen, onRequestClose, disciplinas, initial
   
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const dadosParaApi = { ...formData, tempoEstudado: timeToSeconds(formData.tempoEstudado) };
-    try {
-      await createSessaoEstudo(dadosParaApi);
-      onSessionSaved(); // <-- AVISA O APP.TSX QUE OS DADOS MUDARAM
-      onRequestClose();
+  const totalQuestoes = Number(formData.acertosQuestoes) + Number(formData.errosQuestoes);
+  const dadosParaApi = { 
+    ...formData, 
+    tempoEstudado: timeToSeconds(formData.tempoEstudado),
+    totalQuestoes: totalQuestoes, // Envia o total calculado
+  };
+  try {
+    await createSessaoEstudo(dadosParaApi);
+    onSessionSaved();
+    onRequestClose();
     } catch (error) {
       console.error("Falha ao salvar a sessão:", error);
     }
@@ -104,10 +108,7 @@ export function SessaoEstudoModal({ isOpen, onRequestClose, disciplinas, initial
             <label htmlFor="tempoEstudado">Tempo (HH:MM:SS)</label>
             <input type="time" step="1" name="tempoEstudado" id="tempoEstudado" value={formData.tempoEstudado} onChange={handleChange} required />
           </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="totalQuestoes">Total Questões</label>
-            <input type="number" name="totalQuestoes" id="totalQuestoes" value={formData.totalQuestoes} onChange={handleChange} />
-          </div>
+        
         </div>
         <div className={styles.formGroup}>
           <label htmlFor="disciplinaId">Disciplina</label>

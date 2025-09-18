@@ -4,11 +4,9 @@
   padding: 1rem 2rem;
   background-color: var(--cor-fundo-secundario);
   border-bottom: 1px solid #e0e0e0;
-
-  /* --- Regras de Alinhamento Principal --- */
   display: flex;
-  justify-content: space-between; /* Empurra os filhos para as extremidades */
-  align-items: center;           /* Alinha verticalmente no centro */
+  justify-content: space-between;
+  align-items: center;
 }
 
 .userInfo span {
@@ -19,54 +17,79 @@
 .actionsContainer {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
-.chronometerButton {
+.chronometerButton, .addStudyButton {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--cor-fundo-principal);
   border: 1px solid #ddd;
   padding: 0.6rem 1rem;
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
+  background-color: var(--cor-fundo-secundario);
+  transition: background-color 0.2s ease;
 }
 
-.timeDisplay {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--cor-texto-titulos);
-}
-
-.chronometer button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  color: var(--cor-texto-principal);
-  display: flex;
-  align-items: center;
-  padding: 0.25rem;
-}
-
-.chronometer button:hover {
-  color: var(--cor-primaria);
+.chronometerButton:hover, .addStudyButton:hover {
+  background-color: var(--cor-fundo-principal);
 }
 
 .addStudyButton {
   background-color: var(--cor-secundaria);
   color: var(--cor-texto-branco);
   border: none;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .addStudyButton:hover {
   background-color: #2ecc71;
+}
+
+/* --- ESTILOS PARA O NOVO MENU DROPDOWN --- */
+.profileMenu {
+  position: relative; /* Necessário para posicionar o dropdown */
+}
+
+.profileButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--cor-texto-secundario);
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+.profileButton:hover {
+  color: var(--cor-texto-principal);
+  background-color: var(--cor-fundo-principal);
+}
+
+.dropdown {
+  position: absolute;
+  top: 130%; /* Posição abaixo do botão */
+  right: 0;
+  background-color: var(--cor-fundo-secundario);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  border: 1px solid #eee;
+  width: 150px; /* Largura do menu */
+  z-index: 10;
+  overflow: hidden;
+}
+
+.dropdownItem {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background-color: var(--cor-fundo-principal);
 }
