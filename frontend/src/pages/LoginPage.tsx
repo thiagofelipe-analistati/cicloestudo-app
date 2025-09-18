@@ -6,6 +6,7 @@ import styles from './LoginPage.module.css';
 import { login as loginService } from '../services/authService';
 import { useAuth } from '../contexts/AuthContext';
 import logoAprovaFlow from '../assets/logo.png';
+import { useData } from '../contexts/DataContext';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,13 +14,14 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { login } = useAuth();
-
+  const { refetchData } = useData();
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
     try {
       const { token } = await loginService({ email, password });
       login(token);
+      await refetchData();
       navigate('/');
     } catch (err) {
       setError('Email ou senha inválidos. Tente novamente.');
