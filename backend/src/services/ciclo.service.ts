@@ -3,33 +3,24 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const cicloService = {
-  // Criar um novo ciclo de estudos
-  create: async (nome: string, userId: string) => {
-    return prisma.ciclo.create({
-      data: {
-        nome,
-        userId,
-      },
+  create: async (nome: string, userId: string) => { /* ... */ },
+  getAllByUser: async (userId: string) => { /* ... */ },
+
+  // --- Garanta que esta função está aqui e correta ---
+  addItem: async (cicloId: string, disciplinaId: string, tempoMinutos: number, userId: string) => {
+    const ciclo = await prisma.ciclo.findFirst({ where: { id: cicloId, userId } });
+    if (!ciclo) {
+      throw new Error("Ciclo não encontrado ou não pertence ao usuário.");
+    }
+    const ultimoItem = await prisma.cicloItem.findFirst({
+      where: { cicloId },
+      orderBy: { ordem: 'desc' },
+    });
+    const novaOrdem = (ultimoItem?.ordem || 0) + 1;
+    return prisma.cicloItem.create({
+      data: { cicloId, disciplinaId, tempoMinutos, ordem: novaOrdem, userId: userId, },
     });
   },
-
-  // Listar todos os ciclos de um usuário
-  getAllByUser: async (userId: string) => {
-    return prisma.ciclo.findMany({
-      where: { userId },
-      include: {
-        // Inclui os itens de cada ciclo, ordenados pela posição
-        itens: {
-          orderBy: {
-            ordem: 'asc',
-          },
-          include: {
-            disciplina: true, // Inclui o nome da disciplina em cada item
-          }
-        },
-      },
-    });
-  },
-
-  // (No futuro, adicionaremos aqui as funções de update, delete, addItem, etc.)
+  
+  removeItem: async (itemId: string, userId: string) => { /* ... */ },
 };

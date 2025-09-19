@@ -1,8 +1,7 @@
 // src/pages/PlanejamentoPage.tsx
 import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
-import styles from './PlanejamentoPage.module.css'; // <-- Adiciona a importação que faltava
-import { useData } from '../contexts/DataContext';
+import styles from './PlanejamentoPage.module.css';
 import type { Ciclo } from '../services/cicloService';
 import { getAllCiclos, createCiclo } from '../services/cicloService';
 import { AddItemCicloModal } from '../components/AddItemCicloModal/AddItemCicloModal';
@@ -13,8 +12,6 @@ export function PlanejamentoPage() {
   const [nomeNovoCiclo, setNomeNovoCiclo] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cicloSelecionado, setCicloSelecionado] = useState<Ciclo | null>(null);
-
-  const { refetchData } = useData();
 
   const fetchCiclos = async () => {
     setCarregando(true);
@@ -35,6 +32,7 @@ export function PlanejamentoPage() {
   const handleCreateCiclo = async (e: FormEvent) => {
     e.preventDefault();
     if (!nomeNovoCiclo.trim()) return;
+
     try {
       await createCiclo(nomeNovoCiclo);
       setNomeNovoCiclo('');
@@ -48,7 +46,7 @@ export function PlanejamentoPage() {
     setCicloSelecionado(ciclo);
     setIsModalOpen(true);
   };
-
+  
   const handleItemAdded = () => {
     fetchCiclos();
   };

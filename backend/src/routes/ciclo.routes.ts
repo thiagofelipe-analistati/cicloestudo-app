@@ -4,9 +4,14 @@ import { cicloController } from '../controllers/ciclo.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
-router.use(authenticateToken); // Protege todas as rotas de ciclo
+router.use(authenticateToken);
 
+// Rotas para a coleção de ciclos
 router.post('/', cicloController.create);
 router.get('/', cicloController.getAllByUser);
+
+// --- Garanta que estas rotas para os itens estão aqui ---
+router.post('/:cicloId/items', cicloController.addItem);
+router.delete('/items/:itemId', cicloController.removeItem);
 
 export default router;

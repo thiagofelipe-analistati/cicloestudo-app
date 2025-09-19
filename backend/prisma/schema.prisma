@@ -17,6 +17,7 @@ model User {
   sessoes     SessaoEstudo[]
   topicos     Topico[]
   ciclos      Ciclo[]
+  cicloItens  CicloItem[] 
 }
 
 model Disciplina {
@@ -87,4 +88,6 @@ model CicloItem {
   cicloId      String
   disciplina   Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
   disciplinaId String
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
 }
