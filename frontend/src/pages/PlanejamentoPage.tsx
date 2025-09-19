@@ -1,7 +1,9 @@
 // src/pages/PlanejamentoPage.tsx
 import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
+
 
 import styles from './PlanejamentoPage.module.css';
 import type { Ciclo } from '../services/cicloService';
