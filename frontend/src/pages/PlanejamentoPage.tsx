@@ -85,6 +85,11 @@ const fetchCiclos = async () => {
             <button type="submit">Criar Ciclo</button>
           </form>
         </div>
+        </div>
+
+        <div className={styles.newCicloForm}>
+
+
 
         <div className={styles.ciclosList}>
           {ciclos.length === 0 && !carregando ? (
