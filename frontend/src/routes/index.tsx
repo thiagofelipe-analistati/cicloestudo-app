@@ -7,6 +7,7 @@ import { HistoricoPage } from "../pages/HistoricoPage.tsx";
 import { LoginPage } from "../pages/LoginPage.tsx";
 import { RegisterPage } from "../pages/RegisterPage.tsx";
 import { ProtectedRoute } from "./ProtectedRoute.tsx";
+import { PlanejamentoPage } from "../pages/PlanejamentoPage.tsx";
 
 export const router = createBrowserRouter([
   // Rotas públicas
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
           { index: true, element: <DashboardPage /> },
           { path: "disciplinas", element: <DisciplinasPage /> },
           { path: "historico", element: <HistoricoPage /> },
+          { path: "/planejamento", element: <PlanejamentoPage /> },
         ],
       },
     ]

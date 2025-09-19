@@ -4,7 +4,7 @@ import cors from 'cors'; // Importa o cors
 import disciplinaRoutes from './routes/disciplina.routes';
 import sessaoRoutes from './routes/sessao.routes';
 import authRoutes from './routes/auth.routes';
-
+import cicloRoutes from './routes/ciclo.routes'; 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -27,7 +27,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/disciplinas', disciplinaRoutes);
 app.use('/api/sessoes', sessaoRoutes);
 // A rota de tópicos já está aninhada dentro de disciplinas, então não precisa ser declarada aqui.
-
+app.use('/api/disciplinas', disciplinaRoutes);
+app.use('/api/sessoes', sessaoRoutes);
+app.use('/api/ciclos', cicloRoutes);
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });

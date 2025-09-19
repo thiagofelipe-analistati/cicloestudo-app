@@ -1,0 +1,30 @@
+/* src/pages/PlanejamentoPage.module.css */
+.container {
+  padding: 2rem;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.ciclosList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+.cicloCard {
+  background-color: var(--cor-fundo-secundario);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+.cicloCard h3 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.75rem;
+}
+.cicloCard ul {
+  list-style: none;
+  padding: 0;
+}

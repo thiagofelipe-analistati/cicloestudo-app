@@ -16,6 +16,7 @@ model User {
   disciplinas Disciplina[]
   sessoes     SessaoEstudo[]
   topicos     Topico[]
+  ciclos      Ciclo[]
 }
 
 model Disciplina {
@@ -27,6 +28,7 @@ model Disciplina {
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   sessoes   SessaoEstudo[]
   topicos   Topico[]
+  cicloItens CicloItem[] // Adicionado para relação inversa
 }
 
 model Topico {
@@ -43,7 +45,7 @@ model Topico {
   userId          String
   sessoes         SessaoEstudo[]
   disciplina      Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-  user            User           @relation(fields: [userId], references: [id])
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade) // Ajustado para Cascade
 }
 
 model SessaoEstudo {
@@ -62,6 +64,27 @@ model SessaoEstudo {
   topicoId        String?
   userId          String
   disciplina      Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-  topico          Topico?    @relation(fields: [topicoId], references: [id])
+  topico          Topico?    @relation(fields: [topicoId], references: [id], onDelete: SetNull) // <-- AJUSTE AQUI
   user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Ciclo {
+  id        String      @id @default(uuid())
+  nome      String
+  ativo     Boolean     @default(false)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  itens     CicloItem[]
+}
+
+model CicloItem {
+  id           String     @id @default(uuid())
+  ordem        Int
+  tempoMinutos Int
+  ciclo        Ciclo      @relation(fields: [cicloId], references: [id], onDelete: Cascade)
+  cicloId      String
+  disciplina   Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  disciplinaId String
 }

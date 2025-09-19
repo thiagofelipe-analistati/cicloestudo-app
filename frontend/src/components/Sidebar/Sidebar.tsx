@@ -23,7 +23,13 @@ export function Sidebar() {
                 Histórico
               </NavLink>
             </li>
+                <li>
+              <NavLink to="/planejamento" className={({ isActive }) => isActive ? styles.active : ''}>
+                Planejamento
+              </NavLink>
+            </li>
           </ul>
+          
         </nav>
       </div>
     </aside>
