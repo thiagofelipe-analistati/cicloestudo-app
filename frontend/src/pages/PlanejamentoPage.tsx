@@ -1,7 +1,7 @@
 // src/pages/PlanejamentoPage.tsx
 import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
-import styles from './PlanejamentoPage.module.css';
+import styles from './PlanejamentoPage.module.css'; // <-- Adiciona a importação que faltava
 import type { Ciclo } from '../services/cicloService';
 import { getAllCiclos, createCiclo } from '../services/cicloService';
 import { AddItemCicloModal } from '../components/AddItemCicloModal/AddItemCicloModal';
@@ -13,6 +13,7 @@ export function PlanejamentoPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cicloSelecionado, setCicloSelecionado] = useState<Ciclo | null>(null);
 
+  // A função para buscar os ciclos precisa desligar o 'carregando'
   const fetchCiclos = async () => {
     setCarregando(true);
     try {
@@ -21,6 +22,7 @@ export function PlanejamentoPage() {
     } catch (error) {
       console.error("Erro ao buscar ciclos:", error);
     } finally {
+      // Garante que o 'carregando' seja definido como false no final
       setCarregando(false);
     }
   };
@@ -36,7 +38,7 @@ export function PlanejamentoPage() {
     try {
       await createCiclo(nomeNovoCiclo);
       setNomeNovoCiclo('');
-      fetchCiclos();
+      fetchCiclos(); // Re-busca a lista de ciclos
     } catch (error) {
       console.error("Erro ao criar ciclo:", error);
     }
@@ -51,6 +53,8 @@ export function PlanejamentoPage() {
     fetchCiclos();
   };
 
+  // Se estiver a carregar, mostra uma mensagem.
+  // Quando o fetchCiclos terminar, 'carregando' vira false e o resto da página renderiza.
   if (carregando) {
     return <div className={styles.container}>A carregar planeamento...</div>;
   }
