@@ -15,7 +15,7 @@ export function PlanejamentoPage() {
   const [cicloSelecionado, setCicloSelecionado] = useState<Ciclo | null>(null);
 
   // A função para buscar os ciclos precisa desligar o 'carregando'
-const fetchCiclos = async () => {
+/*const fetchCiclos = async () => {
   setCarregando(true);
   try {
     const data = await getAllCiclos();
@@ -26,11 +26,11 @@ const fetchCiclos = async () => {
   } finally {
     setCarregando(false);
   }
-};
+}; */
 
-  useEffect(() => {
+  /*useEffect(() => {
     fetchCiclos();
-  }, []);
+  }, []); */
 
   const handleCreateCiclo = async (e: FormEvent) => {
     e.preventDefault();
@@ -39,7 +39,7 @@ const fetchCiclos = async () => {
     try {
       await createCiclo(nomeNovoCiclo);
       setNomeNovoCiclo('');
-      fetchCiclos(); // Re-busca a lista de ciclos
+     // fetchCiclos(); // Re-busca a lista de ciclos
     } catch (error) {
       console.error("Erro ao criar ciclo:", error);
     }
@@ -51,13 +51,13 @@ const fetchCiclos = async () => {
   };
   
   const handleItemAdded = () => {
-    fetchCiclos();
+   // fetchCiclos();
   };
   
   const handleRemoveItem = async (itemId: string) => {
     if (window.confirm('Tem certeza?')) {
       await removeItemDoCiclo(itemId);
-      fetchCiclos();
+     // fetchCiclos();
     }
   };
 
