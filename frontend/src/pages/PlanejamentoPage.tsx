@@ -21,8 +21,8 @@ const fetchCiclos = async () => {
     const data = await getAllCiclos();
     console.log("Ciclos recebidos:", data);
     setCiclos(data);
-  } catch (error) {
-    console.error("Erro ao buscar ciclos:", error);
+  } catch (error: any) {
+    console.error("Erro ao buscar ciclos:", error.message, error.response?.data);
   } finally {
     setCarregando(false);
   }

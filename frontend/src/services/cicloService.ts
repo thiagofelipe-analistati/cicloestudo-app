@@ -20,18 +20,13 @@ export interface Ciclo {
 
 export const getAllCiclos = async (): Promise<Ciclo[]> => {
   const response = await api.get('/ciclos');
+  console.log("Resposta bruta da API /ciclos:", response.data); // 👈 loga antes de tratar
   const data = response.data;
 
-  // Garante que sempre retorna array
-  if (Array.isArray(data)) {
-    return data;
-  }
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.ciclos)) return data.ciclos;
 
-  if (data && Array.isArray(data.ciclos)) {
-    return data.ciclos;
-  }
-
-  console.error("Resposta inesperada da API /ciclos:", data);
+  console.error("Formato inesperado da API:", data);
   return [];
 };
 
