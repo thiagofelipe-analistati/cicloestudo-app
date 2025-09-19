@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import styles from './PlanejamentoPage.module.css'; // <-- Adiciona a importação que faltava
 import type { Ciclo } from '../services/cicloService';
-import { getAllCiclos, createCiclo } from '../services/cicloService';
+import { getAllCiclos, createCiclo, removeItemDoCiclo } from '../services/cicloService';
 import { AddItemCicloModal } from '../components/AddItemCicloModal/AddItemCicloModal';
+import { FaTrash } from 'react-icons/fa';
 
 export function PlanejamentoPage() {
   const [ciclos, setCiclos] = useState<Ciclo[]>([]);
@@ -52,6 +53,13 @@ export function PlanejamentoPage() {
   const handleItemAdded = () => {
     fetchCiclos();
   };
+  
+  const handleRemoveItem = async (itemId: string) => {
+    if (window.confirm('Tem certeza?')) {
+      await removeItemDoCiclo(itemId);
+      fetchCiclos();
+    }
+  };
 
   // Se estiver a carregar, mostra uma mensagem.
   // Quando o fetchCiclos terminar, 'carregando' vira false e o resto da página renderiza.
@@ -79,24 +87,33 @@ export function PlanejamentoPage() {
         </div>
 
         <div className={styles.ciclosList}>
-          {ciclos.map(ciclo => (
-            <div key={ciclo.id} className={styles.cicloCard}>
-              <h3>{ciclo.nome}</h3>
-              {ciclo.itens.length > 0 ? (
-                <ul>
-                  {ciclo.itens.map(item => (
-                    <li key={item.id}>
-                      <span>{item.disciplina.nome}</span>
-                      <span>{item.tempoMinutos} min</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>Nenhuma disciplina adicionada a este ciclo.</p>
-              )}
-              <button onClick={() => handleOpenModal(ciclo)}>Adicionar Matéria</button>
-            </div>
-          ))}
+          {ciclos.length === 0 && !carregando ? (
+            <p>Nenhum ciclo cadastrado. Crie um acima para começar.</p>
+          ) : (
+            ciclos.map(ciclo => (
+              <div key={ciclo.id} className={styles.cicloCard}>
+                <h3>{ciclo.nome}</h3>
+                {ciclo.itens.length > 0 ? (
+                  <ul className={styles.itemList}>
+                    {ciclo.itens.map(item => (
+                      <li key={item.id}>
+                        <span>{item.disciplina.nome}</span>
+                        <span>
+                          {item.tempoMinutos} min
+                          <button onClick={() => handleRemoveItem(item.id)} className={styles.deleteButton} title="Remover item">
+                            <FaTrash />
+                          </button>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Nenhuma disciplina adicionada a este ciclo.</p>
+                )}
+                <button className={styles.addButton} onClick={() => handleOpenModal(ciclo)}>Adicionar Matéria</button>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
