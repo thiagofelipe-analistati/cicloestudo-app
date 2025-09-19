@@ -1,133 +1,153 @@
-// src/pages/PlanejamentoPage.tsx
-import { useState, useEffect } from 'react';
+// src/pages/DisciplinasPage.tsx
+import { useState } from 'react';
 import type { FormEvent } from 'react';
-import styles from './PlanejamentoPage.module.css'; // <-- Adiciona a importação que faltava
-import type { Ciclo } from '../services/cicloService';
-import { getAllCiclos, createCiclo, removeItemDoCiclo } from '../services/cicloService';
-import { AddItemCicloModal } from '../components/AddItemCicloModal/AddItemCicloModal';
-import { FaTrash } from 'react-icons/fa';
+import styles from './HomePage.module.css'; // O nome do css pode ser diferente
+import { FaPen, FaTrash } from 'react-icons/fa';
+import { useData } from '../contexts/DataContext';
+import { createDisciplina, updateDisciplina, deleteDisciplina } from '../services/disciplinaService';
+import type { Topico } from '../services/topicoService';
+import { getTopicosByDisciplina, createTopico, updateTopico, deleteTopico } from '../services/topicoService';
 
-export function PlanejamentoPage() {
-  const [ciclos, setCiclos] = useState<Ciclo[]>([]);
-  const [carregando, setCarregando] = useState(true);
-  const [nomeNovoCiclo, setNomeNovoCiclo] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [cicloSelecionado, setCicloSelecionado] = useState<Ciclo | null>(null);
+export function DisciplinasPage() {
+  // Pega os dados e a função de recarregar do nosso contexto global
+  const { disciplinas, refetchData } = useData();
+  
+  const [topicos, setTopicos] = useState<Record<string, Topico[]>>({});
+  const [expandedDisciplinaId, setExpandedDisciplinaId] = useState<string | null>(null);
+  const [isAddingDisciplina, setIsAddingDisciplina] = useState(false);
+  const [nomeNovaDisciplina, setNomeNovaDisciplina] = useState('');
+  const [nomeNovoTopico, setNomeNovoTopico] = useState('');
+  const [editingDisciplina, setEditingDisciplina] = useState<{ id: string; nome: string } | null>(null);
+  const [editingTopico, setEditingTopico] = useState<{ id: string; nome: string } | null>(null);
 
-  // A função para buscar os ciclos precisa desligar o 'carregando'
-/*const fetchCiclos = async () => {
-  setCarregando(true);
-  try {
-    const data = await getAllCiclos();
-    console.log("Ciclos recebidos:", data);
-    setCiclos(data);
-  } catch (error: any) {
-    console.error("Erro ao buscar ciclos:", error.message, error.response?.data);
-  } finally {
-    setCarregando(false);
-  }
-}; */
-
-  /*useEffect(() => {
-    fetchCiclos();
-  }, []); */
-
-  const handleCreateCiclo = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!nomeNovoCiclo.trim()) return;
-
+  // A função fetchTopicos continua local, pois só diz respeito a esta página
+  const fetchTopicos = async (disciplinaId: string) => {
     try {
-      await createCiclo(nomeNovoCiclo);
-      setNomeNovoCiclo('');
-     // fetchCiclos(); // Re-busca a lista de ciclos
-    } catch (error) {
-      console.error("Erro ao criar ciclo:", error);
+      const topicosData = await getTopicosByDisciplina(disciplinaId);
+      setTopicos(prev => ({ ...prev, [disciplinaId]: topicosData }));
+    } catch (error) { console.error(error); }
+  };
+  
+  const handleToggleDisciplina = (disciplinaId: string) => {
+    const newExpandedId = expandedDisciplinaId === disciplinaId ? null : disciplinaId;
+    setExpandedDisciplinaId(newExpandedId);
+    if (newExpandedId && !topicos[newExpandedId]) {
+      fetchTopicos(newExpandedId);
+    }
+  };
+  
+  const handleCriarDisciplina = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!nomeNovaDisciplina.trim()) return;
+    await createDisciplina(nomeNovaDisciplina);
+    setNomeNovaDisciplina('');
+    setIsAddingDisciplina(false);
+    refetchData(); // Chama a função do contexto para atualizar os dados globais
+  };
+
+  const handleUpdateDisciplina = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editingDisciplina || !editingDisciplina.nome.trim()) return;
+    await updateDisciplina(editingDisciplina.id, editingDisciplina.nome);
+    setEditingDisciplina(null);
+    refetchData(); // Chama a função do contexto para atualizar os dados globais
+  };
+  
+  const handleDeleteDisciplina = async (disciplinaId: string) => {
+    if (window.confirm('Tem certeza? Isso excluirá todos os tópicos e sessões associados.')) {
+      await deleteDisciplina(disciplinaId);
+      if (expandedDisciplinaId === disciplinaId) {
+        setExpandedDisciplinaId(null);
+      }
+      refetchData(); // Chama a função do contexto para atualizar os dados globais
     }
   };
 
-  const handleOpenModal = (ciclo: Ciclo) => {
-    setCicloSelecionado(ciclo);
-    setIsModalOpen(true);
+  const handleCriarTopico = async (e: FormEvent, disciplinaId: string) => {
+    e.preventDefault();
+    if (!nomeNovoTopico.trim()) return;
+    await createTopico(disciplinaId, nomeNovoTopico);
+    setNomeNovoTopico('');
+    fetchTopicos(disciplinaId);
+  };
+
+  const handleUpdateTopico = async (e: FormEvent, disciplinaId: string) => {
+    e.preventDefault();
+    if (!editingTopico || !editingTopico.nome.trim()) return;
+    await updateTopico(editingTopico.id, disciplinaId, editingTopico.nome);
+    setEditingTopico(null);
+    fetchTopicos(disciplinaId);
   };
   
-  const handleItemAdded = () => {
-   // fetchCiclos();
-  };
-  
-  const handleRemoveItem = async (itemId: string) => {
-    if (window.confirm('Tem certeza?')) {
-      await removeItemDoCiclo(itemId);
-     // fetchCiclos();
+  const handleDeleteTopico = async (topicoId: string, disciplinaId: string) => {
+    if (window.confirm('Tem certeza que deseja excluir este tópico?')) {
+      await deleteTopico(topicoId, disciplinaId);
+      fetchTopicos(disciplinaId);
     }
   };
 
-  // Se estiver a carregar, mostra uma mensagem.
-  // Quando o fetchCiclos terminar, 'carregando' vira false e o resto da página renderiza.
-  if (carregando) {
-    return <div className={styles.container}>A carregar planeamento...</div>;
-  }
-
+  // O JSX (HTML) da página permanece exatamente o mesmo
   return (
-    <>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1>Planeamento de Ciclos</h1>
-        </div>
-
-        <div className={styles.newCicloForm}>
-          <form onSubmit={handleCreateCiclo}>
-            <input 
-              type="text" 
-              placeholder="Nome do novo ciclo"
-              value={nomeNovoCiclo}
-              onChange={(e) => setNomeNovoCiclo(e.target.value)}
-            />
-            <button type="submit">Criar Ciclo</button>
-          </form>
-        </div>
-        </div>
-
-        <div className={styles.newCicloForm}>
-
-
-
-        <div className={styles.ciclosList}>
-          {ciclos.length === 0 && !carregando ? (
-            <p>Nenhum ciclo cadastrado. Crie um acima para começar.</p>
-          ) : (
-            ciclos.map(ciclo => (
-              <div key={ciclo.id} className={styles.cicloCard}>
-                <h3>{ciclo.nome}</h3>
-                {ciclo.itens.length > 0 ? (
-                  <ul className={styles.itemList}>
-                    {ciclo.itens.map(item => (
-                      <li key={item.id}>
-                        <span>{item.disciplina.nome}</span>
-                        <span>
-                          {item.tempoMinutos} min
-                          <button onClick={() => handleRemoveItem(item.id)} className={styles.deleteButton} title="Remover item">
-                            <FaTrash />
-                          </button>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>Nenhuma disciplina adicionada a este ciclo.</p>
-                )}
-                <button className={styles.addButton} onClick={() => handleOpenModal(ciclo)}>Adicionar Matéria</button>
-              </div>
-            ))
-          )}
-        </div>
+    <div className={styles.pageContainer}>
+      <div className={styles.header}>
+        <h1>Disciplinas</h1>
+        {!isAddingDisciplina && (
+          <button className={styles.addButton} onClick={() => setIsAddingDisciplina(true)}>
+            Adicionar Nova Disciplina
+          </button>
+        )}
       </div>
-
-      <AddItemCicloModal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        ciclo={cicloSelecionado}
-        onItemAdded={handleItemAdded}
-      />
-    </>
+      {isAddingDisciplina && (
+        <form onSubmit={handleCriarDisciplina} className={styles.addForm}>
+          <input type="text" placeholder="Nome da nova disciplina" value={nomeNovaDisciplina} onChange={(e) => setNomeNovaDisciplina(e.target.value)} autoFocus />
+          <button type="submit">Salvar</button>
+          <button type="button" onClick={() => setIsAddingDisciplina(false)}>Cancelar</button>
+        </form>
+      )}
+      <ul className={styles.disciplinaList}>
+        {disciplinas.map(disciplina => (
+          <li key={disciplina.id} className={styles.disciplinaItem}>
+            <div className={styles.disciplinaHeader} onClick={() => handleToggleDisciplina(disciplina.id)}>
+              {editingDisciplina?.id === disciplina.id ? (
+                <form onSubmit={handleUpdateDisciplina} className={styles.editForm} onClick={(e) => e.stopPropagation()}>
+                  <input type="text" value={editingDisciplina.nome} onChange={(e) => setEditingDisciplina({ ...editingDisciplina, nome: e.target.value })} autoFocus />
+                  <button type="submit">Salvar</button>
+                  <button type="button" onClick={() => setEditingDisciplina(null)}>Cancelar</button>
+                </form>
+              ) : ( <h3>{disciplina.nome}</h3> )}
+              <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setEditingDisciplina({ id: disciplina.id, nome: disciplina.nome })} title="Editar Disciplina"><FaPen /></button>
+                <button onClick={() => handleDeleteDisciplina(disciplina.id)} title="Excluir Disciplina"><FaTrash /></button>
+              </div>
+            </div>
+            {expandedDisciplinaId === disciplina.id && (
+              <div className={styles.topicosContainer}>
+                <ul>
+                  {(topicos[disciplina.id] || []).map(topico => (
+                    <li key={topico.id} className={styles.topicoItem}>
+                      {editingTopico?.id === topico.id ? (
+                        <form onSubmit={(e) => handleUpdateTopico(e, disciplina.id)} className={styles.editForm}>
+                          <input type="text" value={editingTopico.nome} onChange={(e) => setEditingTopico({ ...editingTopico, nome: e.target.value })} autoFocus />
+                          <button type="submit">Salvar</button>
+                          <button type="button" onClick={() => setEditingTopico(null)}>Cancelar</button>
+                        </form>
+                      ) : ( <span>{topico.nome}</span> )}
+                      <div className={styles.actions}>
+                        <button onClick={() => setEditingTopico({ id: topico.id, nome: topico.nome })} title="Editar Tópico"><FaPen /></button>
+                        <button onClick={() => handleDeleteTopico(topico.id, disciplina.id)} title="Excluir Tópico"><FaTrash /></button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <form onSubmit={(e) => handleCriarTopico(e, disciplina.id)} className={styles.addForm}>
+                  <input type="text" placeholder="Adicionar novo tópico" value={nomeNovoTopico} onChange={(e) => setNomeNovoTopico(e.target.value)} />
+                  <button type="submit">Salvar Tópico</button>
+                </form>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
