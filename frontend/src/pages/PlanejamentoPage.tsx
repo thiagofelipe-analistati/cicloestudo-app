@@ -15,18 +15,18 @@ export function PlanejamentoPage() {
   const [cicloSelecionado, setCicloSelecionado] = useState<Ciclo | null>(null);
 
   // A função para buscar os ciclos precisa desligar o 'carregando'
-  const fetchCiclos = async () => {
-    setCarregando(true);
-    try {
-      const data = await getAllCiclos();
-      setCiclos(data);
-    } catch (error) {
-      console.error("Erro ao buscar ciclos:", error);
-    } finally {
-      // Garante que o 'carregando' seja definido como false no final
-      setCarregando(false);
-    }
-  };
+const fetchCiclos = async () => {
+  setCarregando(true);
+  try {
+    const data = await getAllCiclos();
+    console.log("Ciclos recebidos:", data);
+    setCiclos(data);
+  } catch (error) {
+    console.error("Erro ao buscar ciclos:", error);
+  } finally {
+    setCarregando(false);
+  }
+};
 
   useEffect(() => {
     fetchCiclos();
