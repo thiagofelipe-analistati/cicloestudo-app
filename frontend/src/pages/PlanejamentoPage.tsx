@@ -1,17 +1,14 @@
 // src/pages/PlanejamentoPage.tsx
 import { useState, useEffect, FormEvent } from 'react';
-import styles from './PlanejamentoPage.module.css';
-import { useData } from '../contexts/DataContext';
+import styles from './PlanejamentoPage.module.css'; // <-- A LINHA QUE FALTAVA
 import type { Ciclo } from '../services/cicloService';
 import { getAllCiclos, createCiclo } from '../services/cicloService';
+// Importe outros componentes/hooks se necessário, como o useData
 
 export function PlanejamentoPage() {
   const [ciclos, setCiclos] = useState<Ciclo[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [nomeNovoCiclo, setNomeNovoCiclo] = useState('');
-
-  // Usamos o refetchData do contexto para atualizar outras partes do app se necessário
-  const { refetchData } = useData(); 
 
   const fetchCiclos = async () => {
     setCarregando(true);
@@ -36,7 +33,7 @@ export function PlanejamentoPage() {
     try {
       await createCiclo(nomeNovoCiclo);
       setNomeNovoCiclo('');
-      fetchCiclos(); // Re-busca a lista de ciclos
+      fetchCiclos();
     } catch (error) {
       console.error("Erro ao criar ciclo:", error);
     }
@@ -50,7 +47,6 @@ export function PlanejamentoPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>Planejamento de Ciclos</h1>
-        {/* Futuramente, um botão para criar um novo ciclo aqui */}
       </div>
 
       <div className={styles.newCicloForm}>
@@ -80,7 +76,6 @@ export function PlanejamentoPage() {
             ) : (
               <p>Nenhuma disciplina adicionada a este ciclo ainda.</p>
             )}
-            {/* Futuramente, botões para editar e adicionar disciplinas ao ciclo */}
           </div>
         ))}
       </div>
