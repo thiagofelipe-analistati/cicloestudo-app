@@ -13,5 +13,11 @@ router.get('/', cicloController.getAllByUser);
 // --- Garanta que estas rotas para os itens estão aqui ---
 router.post('/:cicloId/items', cicloController.addItem);
 router.delete('/items/:itemId', cicloController.removeItem);
+// Rotas que operam em um ciclo específico
+router.put('/:cicloId', cicloController.update);
+router.delete('/:cicloId', cicloController.delete);
 
+// Rotas para os itens
+router.post('/:cicloId/items', cicloController.addItem);
+router.delete('/items/:itemId', cicloController.removeItem);
 export default router;

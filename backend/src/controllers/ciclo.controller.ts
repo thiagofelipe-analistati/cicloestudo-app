@@ -40,4 +40,25 @@ export const cicloController = {
       res.status(204).send();
     } catch (error) { res.status(500).json({ error: 'Falha ao remover item do ciclo.' }); }
   },
+    update: async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
+      const { cicloId } = req.params;
+      const { nome } = req.body;
+      if (!nome) return res.status(400).json({ error: 'O nome é obrigatório.' });
+      await cicloService.update(cicloId, nome, userId);
+      res.status(200).json({ message: 'Ciclo atualizado com sucesso.'});
+    } catch (error) { res.status(500).json({ error: 'Falha ao atualizar ciclo.' }); }
+  },
+
+  delete: async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
+      const { cicloId } = req.params;
+      await cicloService.delete(cicloId, userId);
+      res.status(204).send();
+    } catch (error) { res.status(500).json({ error: 'Falha ao deletar ciclo.' }); }
+  },
 };

@@ -32,3 +32,10 @@ export const addItemAoCiclo = async (cicloId: string, disciplinaId: string, temp
 export const removeItemDoCiclo = async (itemId: string): Promise<void> => {
   await api.delete(`/ciclos/items/${itemId}`);
 };
+export const updateCiclo = async (cicloId: string, nome: string): Promise<void> => {
+  await api.put(`/ciclos/${cicloId}`, { nome });
+};
+
+export const deleteCiclo = async (cicloId: string): Promise<void> => {
+  await api.delete(`/ciclos/${cicloId}`);
+};

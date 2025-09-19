@@ -35,4 +35,16 @@ export const cicloService = {
       where: { id: itemId, ciclo: { userId: userId } },
     });
   },
+    update: async (cicloId: string, nome: string, userId: string) => {
+    return prisma.ciclo.updateMany({
+      where: { id: cicloId, userId },
+      data: { nome },
+    });
+  },
+
+  delete: async (cicloId: string, userId: string) => {
+    return prisma.ciclo.deleteMany({
+      where: { id: cicloId, userId },
+    });
+  },
 };
