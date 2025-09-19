@@ -1,13 +1,14 @@
 // src/pages/PlanejamentoPage.tsx
 import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import type { DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+
 import styles from './PlanejamentoPage.module.css';
 import type { Ciclo } from '../services/cicloService';
 import { getAllCiclos, createCiclo, updateCiclo, deleteCiclo, removeItemDoCiclo, reorderCicloItens } from '../services/cicloService';
 import { AddItemCicloModal } from '../components/AddItemCicloModal/AddItemCicloModal';
 import { FaPen, FaTrash } from 'react-icons/fa';
+
 
 // Função Helper para formatar o tempo
 const formatarTempoTotal = (totalMinutos: number) => {
