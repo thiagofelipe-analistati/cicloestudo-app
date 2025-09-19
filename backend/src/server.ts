@@ -29,12 +29,8 @@ app.use('/api/sessoes', sessaoRoutes);
 app.use('/api/disciplinas', disciplinaRoutes);
 app.use('/api/sessoes', sessaoRoutes);
 app.use('/api/ciclos', cicloRoutes);
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });
 
-app._router.stack.forEach((r: any) => {
-  if (r.route && r.route.path) {
-    console.log(r.route.path);
-  }
-});

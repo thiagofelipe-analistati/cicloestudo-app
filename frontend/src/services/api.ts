@@ -2,11 +2,11 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // Em produção, ele usará a URL do .env. Em desenvolvimento, usará localhost.
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  // O Vite irá injetar a URL correta aqui dependendo do ambiente
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-// "Interceptador": antes de CADA requisição, ele executa esta função.
+// O interceptador continua o mesmo...
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('aprova-flow-token');
   if (token) {

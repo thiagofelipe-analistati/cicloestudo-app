@@ -1,12 +1,10 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
+generator client {
+  provider = "prisma-client-js"
+}
 model User {
   id          String         @id @default(uuid())
   email       String         @unique
@@ -17,21 +15,19 @@ model User {
   sessoes     SessaoEstudo[]
   topicos     Topico[]
   ciclos      Ciclo[]
-  cicloItens  CicloItem[] 
+  cicloItens  CicloItem[]
 }
-
 model Disciplina {
-  id        String         @id @default(uuid())
-  nome      String
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  userId    String
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessoes   SessaoEstudo[]
-  topicos   Topico[]
-  cicloItens CicloItem[] // Adicionado para relação inversa
+  id           String      @id @default(uuid())
+  nome         String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessoes      SessaoEstudo[]
+  topicos      Topico[]
+  cicloItens   CicloItem[]
 }
-
 model Topico {
   id              String         @id @default(uuid())
   nome            String
@@ -46,9 +42,8 @@ model Topico {
   userId          String
   sessoes         SessaoEstudo[]
   disciplina      Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade) // Ajustado para Cascade
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
 model SessaoEstudo {
   id              String     @id @default(uuid())
   data            DateTime
@@ -65,10 +60,9 @@ model SessaoEstudo {
   topicoId        String?
   userId          String
   disciplina      Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-  topico          Topico?    @relation(fields: [topicoId], references: [id], onDelete: SetNull) // <-- AJUSTE AQUI
+  topico          Topico?    @relation(fields: [topicoId], references: [id], onDelete: SetNull)
   user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
 model Ciclo {
   id        String      @id @default(uuid())
   nome      String
@@ -79,7 +73,6 @@ model Ciclo {
   userId    String
   itens     CicloItem[]
 }
-
 model CicloItem {
   id           String     @id @default(uuid())
   ordem        Int
