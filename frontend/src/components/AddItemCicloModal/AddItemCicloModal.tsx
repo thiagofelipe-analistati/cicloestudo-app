@@ -1,5 +1,6 @@
 // src/components/AddItemCicloModal/AddItemCicloModal.tsx
-import { useState, FormEvent } from 'react';
+import { useState} from 'react';
+import type { FormEvent } from 'react';
 import Modal from 'react-modal';
 import styles from './AddItemCicloModal.module.css';
 import { useData } from '../../contexts/DataContext';
@@ -35,7 +36,7 @@ export function AddItemCicloModal({ isOpen, onRequestClose, ciclo, onItemAdded }
     <Modal isOpen={isOpen} onRequestClose={onRequestClose} /* ...outras props de estilo */>
       <h2>Adicionar Matéria ao Ciclo "{ciclo?.nome}"</h2>
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className={styles.formGroup}>
           <label>Disciplina</label>
           <select value={disciplinaId} onChange={e => setDisciplinaId(e.target.value)} required>
             <option value="">Selecione...</option>
@@ -55,10 +56,10 @@ export function AddItemCicloModal({ isOpen, onRequestClose, ciclo, onItemAdded }
             required
           />
         </div>
-        <div>
-          <button type="button" onClick={onRequestClose}>Cancelar</button>
-          <button type="submit">Adicionar</button>
-        </div>
+          <div className={styles.buttons}>
+            <button type="button" onClick={onRequestClose} className={styles.cancelButton}>Cancelar</button>
+            <button type="submit" className={styles.saveButton}>Adicionar</button>
+          </div>
       </form>
     </Modal>
   );

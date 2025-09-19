@@ -1,0 +1,63 @@
+/* src/components/AddItemCicloModal/AddItemCicloModal.module.css */
+.modal h2 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: var(--cor-texto-titulos);
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--cor-texto-principal);
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.buttons {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.buttons button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.buttons button:hover {
+  opacity: 0.9;
+}
+
+.cancelButton {
+  background-color: #eee;
+  color: #333;
+}
+
+.saveButton {
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-branco);
+}
