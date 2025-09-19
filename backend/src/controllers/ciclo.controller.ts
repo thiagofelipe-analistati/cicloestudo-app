@@ -61,4 +61,18 @@ export const cicloController = {
       res.status(204).send();
     } catch (error) { res.status(500).json({ error: 'Falha ao deletar ciclo.' }); }
   },
+    updateOrdemItens: async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
+
+      const { cicloId } = req.params;
+      const { itens } = req.body; // Espera um array de { id, ordem }
+
+      await cicloService.updateOrdemItens(cicloId, itens, userId);
+      res.status(200).json({ message: 'Ordem atualizada com sucesso.' });
+    } catch (error: any) {
+      res.status(500).json({ error: 'Falha ao reordenar itens.', details: error.message });
+    }
+  },
 };

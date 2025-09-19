@@ -47,4 +47,21 @@ export const cicloService = {
       where: { id: cicloId, userId },
     });
   },
+    updateOrdemItens: async (cicloId: string, itensOrdenados: { id: string; ordem: number }[], userId: string) => {
+    // Garante que o ciclo pertence ao usuário
+    const ciclo = await prisma.ciclo.findFirst({ where: { id: cicloId, userId } });
+    if (!ciclo) {
+      throw new Error("Ciclo não encontrado ou não pertence ao usuário.");
+    }
+
+    // Usa uma transação para garantir que todas as atualizações aconteçam ou nenhuma
+    const transacao = itensOrdenados.map(item => 
+      prisma.cicloItem.update({
+        where: { id: item.id },
+        data: { ordem: item.ordem },
+      })
+    );
+
+    return prisma.$transaction(transacao);
+  },
 };

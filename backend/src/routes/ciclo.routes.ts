@@ -20,4 +20,5 @@ router.delete('/:cicloId', cicloController.delete);
 // Rotas para os itens
 router.post('/:cicloId/items', cicloController.addItem);
 router.delete('/items/:itemId', cicloController.removeItem);
+router.patch('/:cicloId/items/reorder', cicloController.updateOrdemItens); 
 export default router;

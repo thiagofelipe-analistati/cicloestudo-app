@@ -39,3 +39,6 @@ export const updateCiclo = async (cicloId: string, nome: string): Promise<void> 
 export const deleteCiclo = async (cicloId: string): Promise<void> => {
   await api.delete(`/ciclos/${cicloId}`);
 };
+export const reorderCicloItens = async (cicloId: string, itens: { id: string; ordem: number }[]): Promise<void> => {
+  await api.patch(`/ciclos/${cicloId}/items/reorder`, { itens });
+};
