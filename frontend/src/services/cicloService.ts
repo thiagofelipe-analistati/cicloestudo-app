@@ -66,7 +66,7 @@ export const getPrimeiroCicloStatus = async (): Promise<CicloComProgresso | null
     return null;
   }
 };
-export const getAllCiclosComProgresso = async (): Promise<CicloComProgresso[]> => {
+/*export const getAllCiclosComProgresso = async (): Promise<CicloComProgresso[]> => {
   const ciclos = await getAllCiclos();
   return ciclos.map(ciclo => ({
     ...ciclo,
@@ -75,4 +75,18 @@ export const getAllCiclosComProgresso = async (): Promise<CicloComProgresso[]> =
       tempoEstudadoMinutos: 0, // inicializa com 0
     })),
   }));
+};*/
+export interface CicloComProgresso extends Omit<Ciclo, 'itens'> {
+  conclusoes: number;
+  itens: CicloItemComProgresso[];
+}
+
+export const getAllCiclosComProgresso = async (): Promise<CicloComProgresso[]> => {
+  try {
+    const response = await api.get('/ciclos/progresso-all'); // A rota que você criar
+    return response.data || [];
+  } catch (error) {
+    console.error("Erro ao buscar todos os ciclos com progresso:", error);
+    return [];
+  }
 };

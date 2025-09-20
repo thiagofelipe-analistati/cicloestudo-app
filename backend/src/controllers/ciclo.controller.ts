@@ -86,4 +86,15 @@ export const cicloController = {
       res.status(500).json({ error: 'Falha ao buscar status do ciclo.' });
     }
   },
+    getAllCiclosComProgresso: async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
+
+      const ciclosComProgresso = await cicloService.getAllCiclosComProgresso(userId);
+      res.status(200).json(ciclosComProgresso);
+    } catch (error) {
+      res.status(500).json({ error: 'Falha ao buscar progresso dos ciclos.' });
+    }
+  },
 };

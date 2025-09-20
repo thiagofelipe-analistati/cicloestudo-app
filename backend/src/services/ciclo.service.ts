@@ -98,4 +98,39 @@ export const cicloService = {
 
     return { ...primeiroCiclo, itens: itensComProgresso };
   },
+    getAllCiclosComProgresso: async (userId: string) => {
+    const todosOsCiclos = await prisma.ciclo.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        itens: {
+          orderBy: { ordem: 'asc' },
+          include: { disciplina: { select: { id: true, nome: true } } },
+        },
+      },
+    });
+
+    if (todosOsCiclos.length === 0) return [];
+
+    const tempoEstudadoPorDisciplina = new Map<string, number>();
+    const sessoesDoUsuario = await prisma.sessaoEstudo.findMany({
+      where: { userId },
+      select: { disciplinaId: true, tempoEstudado: true },
+    });
+
+    for (const sessao of sessoesDoUsuario) {
+      const tempoAtual = tempoEstudadoPorDisciplina.get(sessao.disciplinaId) || 0;
+      tempoEstudadoPorDisciplina.set(sessao.disciplinaId, tempoAtual + sessao.tempoEstudado);
+    }
+
+    const ciclosComProgresso = todosOsCiclos.map(ciclo => {
+      const itensComProgresso = ciclo.itens.map(item => {
+        const tempoEstudadoSegundos = tempoEstudadoPorDisciplina.get(item.disciplinaId) || 0;
+        return { ...item, tempoEstudadoMinutos: Math.floor(tempoEstudadoSegundos / 60) };
+      });
+      return { ...ciclo, itens: itensComProgresso };
+    });
+
+    return ciclosComProgresso;
+  },
 };
