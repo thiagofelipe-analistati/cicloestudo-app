@@ -75,15 +75,15 @@ export const cicloController = {
       res.status(500).json({ error: 'Falha ao reordenar itens.', details: error.message });
     }
   },
-   getActiveCicloStatus: async (req: Request, res: Response) => {
+
+  getPrimeiroCicloStatus: async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId;
       if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
-
-      const status = await cicloService.getActiveCicloStatus(userId);
+      const status = await cicloService.getPrimeiroCicloStatus(userId);
       res.status(200).json(status);
     } catch (error) {
-      res.status(500).json({ error: 'Falha ao buscar status do ciclo ativo.' });
+      res.status(500).json({ error: 'Falha ao buscar status do ciclo.' });
     }
   },
 };

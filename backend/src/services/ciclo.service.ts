@@ -64,10 +64,10 @@ export const cicloService = {
 
     return prisma.$transaction(transacao);
   },
-  getActiveCicloStatus: async (userId: string) => {
-    // 1. Encontra o ciclo marcado como 'ativo' para o usuário
-    const cicloAtivo = await prisma.ciclo.findFirst({
-      where: { userId, ativo: true },
+  getPrimeiroCicloStatus: async (userId: string) => {
+    const primeiroCiclo = await prisma.ciclo.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
       include: {
         itens: {
           orderBy: { ordem: 'asc' },
@@ -76,16 +76,13 @@ export const cicloService = {
       },
     });
     
-    if (!cicloAtivo || cicloAtivo.itens.length === 0) {
-      return null; // Retorna nulo se não houver ciclo ativo ou se ele estiver vazio
+    if (!primeiroCiclo || primeiroCiclo.itens.length === 0) {
+      return null;
     }
 
-    // 2. Cria um mapa para somar o tempo estudado por disciplina
     const tempoEstudadoPorDisciplina = new Map<string, number>();
-
-    // 3. Busca todas as sessões de estudo do usuário e calcula o total por disciplina
     const sessoesDoUsuario = await prisma.sessaoEstudo.findMany({
-      where: { userId },
+      where: { userId, disciplinaId: { in: primeiroCiclo.itens.map(i => i.disciplinaId) } },
       select: { disciplinaId: true, tempoEstudado: true },
     });
 
@@ -94,16 +91,11 @@ export const cicloService = {
       tempoEstudadoPorDisciplina.set(sessao.disciplinaId, tempoAtual + sessao.tempoEstudado);
     }
 
-    // 4. Combina os dados: anexa o tempo estudado a cada item do ciclo
-    const itensComProgresso = cicloAtivo.itens.map(item => {
+    const itensComProgresso = primeiroCiclo.itens.map(item => {
       const tempoEstudadoSegundos = tempoEstudadoPorDisciplina.get(item.disciplinaId) || 0;
-      return {
-        ...item,
-        // Adicionamos um novo campo com o tempo já estudado em minutos
-        tempoEstudadoMinutos: Math.floor(tempoEstudadoSegundos / 60),
-      };
+      return { ...item, tempoEstudadoMinutos: Math.floor(tempoEstudadoSegundos / 60) };
     });
 
-    return { ...cicloAtivo, itens: itensComProgresso };
+    return { ...primeiroCiclo, itens: itensComProgresso };
   },
 };

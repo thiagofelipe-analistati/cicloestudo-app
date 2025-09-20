@@ -1,10 +1,13 @@
+// src/prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 generator client {
   provider = "prisma-client-js"
 }
+
 model User {
   id          String         @id @default(uuid())
   email       String         @unique
@@ -17,6 +20,7 @@ model User {
   ciclos      Ciclo[]
   cicloItens  CicloItem[]
 }
+
 model Disciplina {
   id           String      @id @default(uuid())
   nome         String
@@ -28,6 +32,7 @@ model Disciplina {
   topicos      Topico[]
   cicloItens   CicloItem[]
 }
+
 model Topico {
   id              String         @id @default(uuid())
   nome            String
@@ -44,6 +49,7 @@ model Topico {
   disciplina      Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 model SessaoEstudo {
   id              String     @id @default(uuid())
   data            DateTime
@@ -63,16 +69,19 @@ model SessaoEstudo {
   topico          Topico?    @relation(fields: [topicoId], references: [id], onDelete: SetNull)
   user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
 model Ciclo {
-  id        String      @id @default(uuid())
-  nome      String
-  ativo     Boolean     @default(false)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  itens     CicloItem[]
+  id              String      @id @default(uuid())
+  nome            String
+  ordemItemAtual  Int         @default(1)
+  conclusoes      Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  itens           CicloItem[]
 }
+
 model CicloItem {
   id           String     @id @default(uuid())
   ordem        Int
