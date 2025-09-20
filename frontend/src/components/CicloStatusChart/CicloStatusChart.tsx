@@ -8,12 +8,12 @@ interface CicloStatusChartProps {
 
 // Paleta de cores suaves e vivas (vermelho, laranja, amarelo, verde, azul claro, lilás)
 const softColors = [
-  "#FF6B6B", // vermelho suave
-  "#FFA94D", // laranja suave
+  "#ff0000", // vermelho suave
+  "#70c927", // laranja suave
   "#FFD93D", // amarelo
-  "#6BCB77", // verde suave
-  "#4D96FF", // azul claro
-  "#C77DFF"  // lilás
+  "#3d9448", // verde suave
+  "#3f84e6", // azul claro
+  "#a14fe0"  // lilás
 ];
 
 // Função para pegar uma cor da paleta de forma previsível
