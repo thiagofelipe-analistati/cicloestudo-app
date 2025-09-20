@@ -1,7 +1,5 @@
-// src/pages/DashboardPage.tsx
 import { useState, useEffect } from 'react';
 import styles from './DashboardPage.module.css';
-import { useData } from '../contexts/DataContext';
 import { KpiCard } from '../components/KpiCard/KpiCard';
 import { DisciplinaSummaryPanel } from '../components/DisciplinaSummaryPanel/DisciplinaSummaryPanel';
 import { CicloStatusChart } from '../components/CicloStatusChart/CicloStatusChart';
@@ -9,7 +7,8 @@ import type { SessaoEstudo } from '../services/sessaoService';
 import { getAllSessoes } from '../services/sessaoService';
 import type { DisciplinaSummary } from '../services/disciplinaService';
 import { getDisciplinasSummary } from '../services/disciplinaService';
-import type { Ciclo } from '../services/cicloService'; // Importe o tipo Ciclo
+import { useData } from '../contexts/DataContext';
+import type {  CicloComProgresso } from '../services/cicloService';
 import { getActiveCicloStatus } from '../services/cicloService';
 
 const formatTime = (seconds: number): string => {
@@ -22,32 +21,55 @@ const formatTime = (seconds: number): string => {
 export function DashboardPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
   const [summary, setSummary] = useState<DisciplinaSummary[]>([]);
+  const [cicloAtivo, setCicloAtivo] = useState<CicloComProgresso | null>(null);
   const [carregando, setCarregando] = useState(true);
-  const [cicloAtivo, setCicloAtivo] = useState<Ciclo | null>(null); // Estado para o ciclo
   const { refetchKey } = useData();
 
   useEffect(() => {
     setCarregando(true);
-    // Busca todos os dados em paralelo
-    Promise.all([
-      getAllSessoes({}),
-      getDisciplinasSummary(),
-      getActiveCicloStatus()
-    ]).then(([sessoesData, summaryData, cicloData]) => {
-      setSessoes(sessoesData);
-      setSummary(summaryData);
-      setCicloAtivo(cicloData);
-    }).catch(err => console.error("Erro ao buscar dados do dashboard:", err))
-      .finally(() => setCarregando(false));
+
+    const fetchDashboard = async () => {
+      try {
+        const [sessoesData, summaryData, ciclo] = await Promise.all([
+          getAllSessoes({}),
+          getDisciplinasSummary(),
+          getActiveCicloStatus(),
+        ]);
+
+        setSessoes(sessoesData);
+        setSummary(summaryData);
+
+        if (ciclo) {
+          // transforma Ciclo em CicloComProgresso, inicializando tempoEstudadoMinutos
+          const cicloComProgresso: CicloComProgresso = {
+            ...ciclo,
+            itens: ciclo.itens.map(item => ({
+              ...item,
+              tempoEstudadoMinutos: 0, // inicializa com 0
+            })),
+          };
+          setCicloAtivo(cicloComProgresso);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar dados do dashboard:", err);
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    fetchDashboard();
   }, [refetchKey]);
 
-  const totais = sessoes.reduce((acc, sessao) => {
-    acc.tempo += sessao.tempoEstudado;
-    acc.questoes += sessao.totalQuestoes || 0;
-    acc.acertos += sessao.acertosQuestoes || 0;
-    acc.erros += sessao.errosQuestoes || 0;
-    return acc;
-  }, { tempo: 0, questoes: 0, acertos: 0, erros: 0 });
+  const totais = sessoes.reduce(
+    (acc, sessao) => {
+      acc.tempo += sessao.tempoEstudado;
+      acc.questoes += sessao.totalQuestoes || 0;
+      acc.acertos += sessao.acertosQuestoes || 0;
+      acc.erros += sessao.errosQuestoes || 0;
+      return acc;
+    },
+    { tempo: 0, questoes: 0, acertos: 0, erros: 0 }
+  );
 
   const percentualAcerto = totais.questoes > 0
     ? (totais.acertos / totais.questoes) * 100
@@ -71,22 +93,16 @@ export function DashboardPage() {
         <KpiCard title="Sessões Realizadas" value={sessoes.length.toString()} />
       </div>
 
-      {/* Nova seção com layout de duas colunas */}
-      <div className={styles.mainGrid}>
-        <div className={styles.painelGeral}>
-          <h2>Painel Geral</h2>
-          <DisciplinaSummaryPanel summaryData={summary} />
+      {cicloAtivo && (
+        <div style={{ marginTop: '2rem' }}>
+          <h2>Ciclo Ativo</h2>
+          <CicloStatusChart cicloAtivo={cicloAtivo} />
         </div>
-        <div className={styles.cicloStatus}>
-          {cicloAtivo ? (
-            <CicloStatusChart cicloAtivo={cicloAtivo} />
-          ) : (
-            <div className={styles.noCiclo}>
-              <h3>Nenhum Ciclo Ativo</h3>
-              <p>Vá para a página de Planejamento para criar e ativar um ciclo de estudos.</p>
-            </div>
-          )}
-        </div>
+      )}
+
+      <div style={{ marginTop: '2rem' }}>
+        <h2>Painel Geral</h2>
+        <DisciplinaSummaryPanel summaryData={summary} />
       </div>
     </div>
   );
