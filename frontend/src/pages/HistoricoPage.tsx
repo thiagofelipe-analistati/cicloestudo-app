@@ -5,12 +5,12 @@ import { useData } from '../contexts/DataContext';
 import type { SessaoEstudo } from '../services/sessaoService';
 import { getAllSessoes } from '../services/sessaoService';
 
-// Funções Helper para formatação
+// --- Funções Helper ---
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || seconds < 0) return "00h00min";
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
-  return `${String(h).padStart(2, '0')}h${String(m).padStart(2, '0')}min`;
+  return `${String(h).padStart(2,'0')}h${String(m).padStart(2,'0')}min`;
 };
 
 const formatDate = (dateValue: Date | string) => {
@@ -22,28 +22,28 @@ export function HistoricoPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [filters, setFilters] = useState({ disciplinaId: '', dataInicio: '', dataFim: '' });
-  const { disciplinas, refetchData } = useData();
+  
+  const { disciplinas, refetchKey } = useData();
 
   useEffect(() => {
     setCarregando(true);
-    const params: any = {};
+
+    const params: Record<string, string> = {};
     if (filters.disciplinaId) params.disciplinaId = filters.disciplinaId;
     if (filters.dataInicio) params.dataInicio = filters.dataInicio;
     if (filters.dataFim) params.dataFim = filters.dataFim;
-    
+
     getAllSessoes(params)
       .then(setSessoes)
       .catch(err => console.error("Erro ao buscar sessões:", err))
       .finally(() => setCarregando(false));
-      
-  }, [filters, refetchData]);
+  }, [filters, refetchKey]); // <- atualiza sempre que refetchKey mudar
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFilters(prev => ({...prev, [name]: value }));
-  }
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
 
-  // --- LÓGICA DE CÁLCULO IDÊNTICA À DO DASHBOARD ---
   const totais = sessoes.reduce((acc, sessao) => {
     acc.tempo += sessao.tempoEstudado;
     acc.questoes += sessao.totalQuestoes || 0;
@@ -52,20 +52,18 @@ export function HistoricoPage() {
     return acc;
   }, { tempo: 0, questoes: 0, acertos: 0, erros: 0 });
 
-  const percentualAcerto = totais.questoes > 0 
-    ? (totais.acertos / totais.questoes) * 100 
-    : 0;
-  
+  const percentualAcerto = totais.questoes > 0 ? (totais.acertos / totais.questoes) * 100 : 0;
+
   return (
     <div className={styles.container}>
       <h1>Histórico de Estudos</h1>
+
       <div className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
           <h3>Tempo de Estudo</h3>
           <p>{formatTime(totais.tempo)}</p>
         </div>
 
-        {/* --- CARD DE DESEMPENHO ATUALIZADO --- */}
         <div className={styles.summaryCard}>
           <h3>Desempenho</h3>
           <p>{percentualAcerto.toFixed(1)}%</p>
@@ -75,14 +73,13 @@ export function HistoricoPage() {
             <span className={styles.errorCount}>Erradas: {totais.erros}</span>
           </div>
         </div>
-        
+
         <div className={styles.summaryCard}>
           <h3>Sessões Realizadas</h3>
           <p>{sessoes.length}</p>
         </div>
       </div>
 
-      {/* Filtros e Lista de Sessões continuam aqui */}
       <div className={styles.filters}>
         <select name="disciplinaId" value={filters.disciplinaId} onChange={handleFilterChange}>
           <option value="">Todas as Disciplinas</option>
@@ -108,9 +105,9 @@ export function HistoricoPage() {
               </div>
               <div className={styles.sessionDetails}>
                 <span><strong>Tempo:</strong> {formatTime(sessao.tempoEstudado)}</span>
-                {sessao.totalQuestoes && sessao.totalQuestoes > 0 ? (
+                {sessao.totalQuestoes && sessao.totalQuestoes > 0 && (
                   <span><strong>Questões:</strong> {sessao.acertosQuestoes}/{sessao.totalQuestoes}</span>
-                ) : null}
+                )}
                 <span><strong>Categoria:</strong> {sessao.categoria}</span>
               </div>
             </div>

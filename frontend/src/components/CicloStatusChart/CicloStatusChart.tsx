@@ -1,4 +1,3 @@
-// src/components/CicloStatusChart/CicloStatusChart.tsx
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import styles from './CicloStatusChart.module.css';
 import type { CicloComProgresso } from '../../services/cicloService';
@@ -7,36 +6,27 @@ interface CicloStatusChartProps {
   cicloAtivo: CicloComProgresso;
 }
 
-// Função para gerar cores aleatórias com base no nome da disciplina
+// Gera cores suaves (pastel) baseadas no nome da disciplina
 const generateColor = (name: string): string => {
+  if (!name) return '#cccccc';
   let hash = 0;
-  if (name.length === 0) return '#000000';
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    hash = hash & hash;
   }
-  let color = '#';
-  for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += ('00' + value.toString(16)).substr(-2);
-  }
-  return color;
+  const h = hash % 360; // Hue 0-359
+  const s = 60; // Saturação menor
+  const l = 85; // Luminosidade alta para cores claras
+  return `hsl(${h}, ${s}%, ${l}%)`;
 };
 
 export function CicloStatusChart({ cicloAtivo }: CicloStatusChartProps) {
-  const totalPlanejado = cicloAtivo.itens.reduce(
-    (acc, item) => acc + item.tempoMinutos,
-    0
-  );
-
+  const totalPlanejado = cicloAtivo.itens.reduce((acc, item) => acc + item.tempoMinutos, 0);
   const totalEstudado = cicloAtivo.itens.reduce(
-    (acc, item) =>
-      acc + Math.min(item.tempoEstudadoMinutos ?? 0, item.tempoMinutos),
+    (acc, item) => acc + Math.min(item.tempoEstudadoMinutos ?? 0, item.tempoMinutos),
     0
   );
 
-  const progressoGeral =
-    totalPlanejado > 0 ? (totalEstudado / totalPlanejado) * 100 : 0;
+  const progressoGeral = totalPlanejado > 0 ? (totalEstudado / totalPlanejado) * 100 : 0;
 
   const dadosParaGrafico = cicloAtivo.itens.map(item => ({
     name: item.disciplina.nome,
@@ -57,7 +47,6 @@ export function CicloStatusChart({ cicloAtivo }: CicloStatusChartProps) {
               cx="50%"
               cy="50%"
               outerRadius={80}
-              fill="#8884d8"
               label
             >
               {dadosParaGrafico.map((entry, index) => (
