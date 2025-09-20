@@ -64,4 +64,46 @@ export const cicloService = {
 
     return prisma.$transaction(transacao);
   },
+  getActiveCicloStatus: async (userId: string) => {
+    // 1. Encontra o ciclo marcado como 'ativo' para o usuário
+    const cicloAtivo = await prisma.ciclo.findFirst({
+      where: { userId, ativo: true },
+      include: {
+        itens: {
+          orderBy: { ordem: 'asc' },
+          include: { disciplina: { select: { id: true, nome: true } } },
+        },
+      },
+    });
+    
+    if (!cicloAtivo || cicloAtivo.itens.length === 0) {
+      return null; // Retorna nulo se não houver ciclo ativo ou se ele estiver vazio
+    }
+
+    // 2. Cria um mapa para somar o tempo estudado por disciplina
+    const tempoEstudadoPorDisciplina = new Map<string, number>();
+
+    // 3. Busca todas as sessões de estudo do usuário e calcula o total por disciplina
+    const sessoesDoUsuario = await prisma.sessaoEstudo.findMany({
+      where: { userId },
+      select: { disciplinaId: true, tempoEstudado: true },
+    });
+
+    for (const sessao of sessoesDoUsuario) {
+      const tempoAtual = tempoEstudadoPorDisciplina.get(sessao.disciplinaId) || 0;
+      tempoEstudadoPorDisciplina.set(sessao.disciplinaId, tempoAtual + sessao.tempoEstudado);
+    }
+
+    // 4. Combina os dados: anexa o tempo estudado a cada item do ciclo
+    const itensComProgresso = cicloAtivo.itens.map(item => {
+      const tempoEstudadoSegundos = tempoEstudadoPorDisciplina.get(item.disciplinaId) || 0;
+      return {
+        ...item,
+        // Adicionamos um novo campo com o tempo já estudado em minutos
+        tempoEstudadoMinutos: Math.floor(tempoEstudadoSegundos / 60),
+      };
+    });
+
+    return { ...cicloAtivo, itens: itensComProgresso };
+  },
 };

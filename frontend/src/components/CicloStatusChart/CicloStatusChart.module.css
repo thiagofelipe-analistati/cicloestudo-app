@@ -1,0 +1,27 @@
+/* src/components/CicloStatusChart/CicloStatusChart.module.css */
+.chartContainer {
+  background-color: var(--cor-fundo-secundario);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  height: 100%;
+}
+.chartContainer h3 { margin-top: 0; text-align: center; }
+.chartWrapper { position: relative; }
+.centerText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.centerText span {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--cor-texto-titulos);
+}
+.centerText small {
+  font-size: 0.9rem;
+  color: var(--cor-texto-secundario);
+  display: block;
+}
