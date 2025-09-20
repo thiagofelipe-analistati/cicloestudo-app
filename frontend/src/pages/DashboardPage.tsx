@@ -9,7 +9,7 @@ import { getAllSessoes } from '../services/sessaoService';
 import type { DisciplinaSummary } from '../services/disciplinaService';
 import { getDisciplinasSummary } from '../services/disciplinaService';
 import type { CicloComProgresso } from '../services/cicloService';
-import { getPrimeiroCicloStatus } from '../services/cicloService';
+import { getAllCiclosComProgresso } from '../services/cicloService';
 
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || seconds < 0) return "00h00min";
@@ -21,22 +21,31 @@ const formatTime = (seconds: number): string => {
 export function DashboardPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
   const [summary, setSummary] = useState<DisciplinaSummary[]>([]);
+  const [ciclos, setCiclos] = useState<CicloComProgresso[]>([]);
   const [carregando, setCarregando] = useState(true);
-  const [ciclo, setCiclo] = useState<CicloComProgresso | null>(null);
   const { refetchData } = useData();
 
   useEffect(() => {
     setCarregando(true);
-    Promise.all([
-      getAllSessoes({}),
-      getDisciplinasSummary(),
-      getPrimeiroCicloStatus()
-    ]).then(([sessoesData, summaryData, cicloData]) => {
-      setSessoes(sessoesData);
-      setSummary(summaryData);
-      setCiclo(cicloData);
-    }).catch(err => console.error("Erro ao buscar dados:", err))
-      .finally(() => setCarregando(false));
+    const fetchDashboard = async () => {
+      try {
+        const [sessoesData, summaryData, ciclosData] = await Promise.all([
+          getAllSessoes({}),
+          getDisciplinasSummary(),
+          getAllCiclosComProgresso()
+        ]);
+
+        setSessoes(sessoesData);
+        setSummary(summaryData);
+        setCiclos(ciclosData);
+      } catch (err) {
+        console.error("Erro ao buscar dados do dashboard:", err);
+      } finally {
+        setCarregando(false);
+      }
+    };
+
+    fetchDashboard();
   }, [refetchData]);
 
   const totais = sessoes.reduce((acc, sessao) => {
@@ -58,18 +67,27 @@ export function DashboardPage() {
       <h1>Dashboard</h1>
       <div className={styles.grid}>
         <KpiCard title="Tempo de Estudo" value={formatTime(totais.tempo)} />
-        <KpiCard title="Desempenho" value={`${percentualAcerto.toFixed(1)}%`} details={<span>Certas: {totais.acertos} / <span className={styles.errorCount}>Erradas: {totais.erros}</span></span>} />
+        <KpiCard title="Desempenho" value={`${percentualAcerto.toFixed(1)}%`} 
+          details={<span>Certas: {totais.acertos} / <span className={styles.errorCount}>Erradas: {totais.erros}</span></span>} 
+        />
         <KpiCard title="Progresso no Edital" value="-" details={<span>- Tópicos Concluídos</span>} />
         <KpiCard title="Sessões Realizadas" value={sessoes.length.toString()} />
       </div>
+
       <div className={styles.mainGrid}>
         <div className={styles.painelGeral}>
           <h2>Painel Geral</h2>
           <DisciplinaSummaryPanel summaryData={summary} />
         </div>
-        <div className={styles.cicloStatus}>
-          {ciclo ? (
-            <CicloStatusChart cicloAtivo={ciclo} />
+
+        <div className={styles.ciclosContainer}>
+          {ciclos.length > 0 ? (
+            ciclos.map(ciclo => (
+              <div key={ciclo.id} className={styles.cicloStatus}>
+                <h2>{ciclo.nome}</h2>
+                <CicloStatusChart cicloAtivo={ciclo} />
+              </div>
+            ))
           ) : (
             <div className={styles.noCiclo}>
               <h3>Nenhum Ciclo Cadastrado</h3>

@@ -66,3 +66,13 @@ export const getPrimeiroCicloStatus = async (): Promise<CicloComProgresso | null
     return null;
   }
 };
+export const getAllCiclosComProgresso = async (): Promise<CicloComProgresso[]> => {
+  const ciclos = await getAllCiclos();
+  return ciclos.map(ciclo => ({
+    ...ciclo,
+    itens: ciclo.itens.map(item => ({
+      ...item,
+      tempoEstudadoMinutos: 0, // inicializa com 0
+    })),
+  }));
+};
