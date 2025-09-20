@@ -4,11 +4,20 @@ export interface CicloItem {
   id: string;
   ordem: number;
   tempoMinutos: number;
-  disciplina: { id: string; nome: string; };
+  disciplina: { id: string; nome: string };
 }
+
 export interface CicloItemComProgresso extends CicloItem {
   tempoEstudadoMinutos: number;
 }
+
+export interface Ciclo {
+  id: string;
+  nome: string;
+  ativo: boolean;
+  itens: CicloItem[];
+}
+
 export interface CicloComProgresso extends Omit<Ciclo, 'itens'> {
   itens: CicloItemComProgresso[];
 }
