@@ -13,23 +13,11 @@
   font-weight: bold;
 }
 
-/* --- NOVO LAYOUT PARA MAIN GRID --- */
 .mainGrid {
   margin-top: 2rem;
   display: grid;
-  grid-template-columns: 2fr 1fr; /* Painel Geral 2/3 e gráfico 1/3 */
+  grid-template-columns: 2fr 1fr; /* painel 2/3, gráfico 1/3 */
   gap: 1.5rem;
-}
-
-.painelGeral {
-  background-color: var(--cor-fundo-secundario);
-  padding: 1rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-}
-
-.cicloStatus {
-  height: 100%;
 }
 
 .noCiclo {
@@ -50,9 +38,16 @@
   margin-top: 0;
 }
 
-/* RESPONSIVO */
+.chartContainer {
+  min-width: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* responsivo */
 @media (max-width: 992px) {
   .mainGrid {
-    grid-template-columns: 1fr; /* coluna única */
+    grid-template-columns: 1fr;
   }
 }

@@ -6,32 +6,40 @@ interface CicloStatusChartProps {
   cicloAtivo: CicloComProgresso;
 }
 
-// Gera cores suaves (pastel) baseadas no nome da disciplina
-const generateColor = (name: string): string => {
-  if (!name) return '#cccccc';
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const h = hash % 360; // Hue 0-359
-  const s = 60; // Saturação menor
-  const l = 85; // Luminosidade alta para cores claras
-  return `hsl(${h}, ${s}%, ${l}%)`;
+// Paleta de cores suaves e vivas (vermelho, laranja, amarelo, verde, azul claro, lilás)
+const softColors = [
+  "#FF6B6B", // vermelho suave
+  "#FFA94D", // laranja suave
+  "#FFD93D", // amarelo
+  "#6BCB77", // verde suave
+  "#4D96FF", // azul claro
+  "#C77DFF"  // lilás
+];
+
+// Função para pegar uma cor da paleta de forma previsível
+const getColor = (index: number): string => {
+  return softColors[index % softColors.length];
 };
 
 export function CicloStatusChart({ cicloAtivo }: CicloStatusChartProps) {
-  const totalPlanejado = cicloAtivo.itens.reduce((acc, item) => acc + item.tempoMinutos, 0);
-  const totalEstudado = cicloAtivo.itens.reduce(
-    (acc, item) => acc + Math.min(item.tempoEstudadoMinutos ?? 0, item.tempoMinutos),
+  const totalPlanejado = cicloAtivo.itens.reduce(
+    (acc, item) => acc + item.tempoMinutos,
     0
   );
 
-  const progressoGeral = totalPlanejado > 0 ? (totalEstudado / totalPlanejado) * 100 : 0;
+  const totalEstudado = cicloAtivo.itens.reduce(
+    (acc, item) =>
+      acc + Math.min(item.tempoEstudadoMinutos ?? 0, item.tempoMinutos),
+    0
+  );
 
-  const dadosParaGrafico = cicloAtivo.itens.map(item => ({
+  const progressoGeral =
+    totalPlanejado > 0 ? (totalEstudado / totalPlanejado) * 100 : 0;
+
+  const dadosParaGrafico = cicloAtivo.itens.map((item, index) => ({
     name: item.disciplina.nome,
     value: item.tempoMinutos,
-    color: generateColor(item.disciplina.nome),
+    color: getColor(index),
   }));
 
   return (
