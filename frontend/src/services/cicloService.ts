@@ -57,12 +57,12 @@ export const deleteCiclo = async (cicloId: string): Promise<void> => {
 export const reorderCicloItens = async (cicloId: string, itens: { id: string; ordem: number }[]): Promise<void> => {
   await api.patch(`/ciclos/${cicloId}/items/reorder`, { itens });
 };
-export const getActiveCicloStatus = async (): Promise<Ciclo | null> => {
+export const getPrimeiroCicloStatus = async (): Promise<CicloComProgresso | null> => {
   try {
-    const response = await api.get('/ciclos/ativo/status');
+    const response = await api.get('/ciclos/status');
     return response.data;
   } catch (error) {
-    console.error("Erro ao buscar status do ciclo ativo:", error);
+    console.error("Erro ao buscar status do ciclo:", error);
     return null;
   }
 };

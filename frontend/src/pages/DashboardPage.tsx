@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styles from './DashboardPage.module.css';
+import { useData } from '../contexts/DataContext';
 import { KpiCard } from '../components/KpiCard/KpiCard';
 import { DisciplinaSummaryPanel } from '../components/DisciplinaSummaryPanel/DisciplinaSummaryPanel';
 import { CicloStatusChart } from '../components/CicloStatusChart/CicloStatusChart';
@@ -7,9 +8,8 @@ import type { SessaoEstudo } from '../services/sessaoService';
 import { getAllSessoes } from '../services/sessaoService';
 import type { DisciplinaSummary } from '../services/disciplinaService';
 import { getDisciplinasSummary } from '../services/disciplinaService';
-import { useData } from '../contexts/DataContext';
-import type {  CicloComProgresso } from '../services/cicloService';
-import { getActiveCicloStatus } from '../services/cicloService';
+import type { CicloComProgresso } from '../services/cicloService';
+import { getPrimeiroCicloStatus } from '../services/cicloService';
 
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || seconds < 0) return "00h00min";
@@ -21,62 +21,36 @@ const formatTime = (seconds: number): string => {
 export function DashboardPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
   const [summary, setSummary] = useState<DisciplinaSummary[]>([]);
-  const [cicloAtivo, setCicloAtivo] = useState<CicloComProgresso | null>(null);
   const [carregando, setCarregando] = useState(true);
-  const { refetchKey } = useData();
+  const [ciclo, setCiclo] = useState<CicloComProgresso | null>(null);
+  const { refetchData } = useData();
 
   useEffect(() => {
     setCarregando(true);
+    Promise.all([
+      getAllSessoes({}),
+      getDisciplinasSummary(),
+      getPrimeiroCicloStatus()
+    ]).then(([sessoesData, summaryData, cicloData]) => {
+      setSessoes(sessoesData);
+      setSummary(summaryData);
+      setCiclo(cicloData);
+    }).catch(err => console.error("Erro ao buscar dados:", err))
+      .finally(() => setCarregando(false));
+  }, [refetchData]);
 
-    const fetchDashboard = async () => {
-      try {
-        const [sessoesData, summaryData, ciclo] = await Promise.all([
-          getAllSessoes({}),
-          getDisciplinasSummary(),
-          getActiveCicloStatus(),
-        ]);
+  const totais = sessoes.reduce((acc, sessao) => {
+    acc.tempo += sessao.tempoEstudado;
+    acc.questoes += sessao.totalQuestoes || 0;
+    acc.acertos += sessao.acertosQuestoes || 0;
+    acc.erros += sessao.errosQuestoes || 0;
+    return acc;
+  }, { tempo: 0, questoes: 0, acertos: 0, erros: 0 });
 
-        setSessoes(sessoesData);
-        setSummary(summaryData);
-
-        if (ciclo) {
-          // transforma Ciclo em CicloComProgresso, inicializando tempoEstudadoMinutos
-          const cicloComProgresso: CicloComProgresso = {
-            ...ciclo,
-            itens: ciclo.itens.map(item => ({
-              ...item,
-              tempoEstudadoMinutos: 0, // inicializa com 0
-            })),
-          };
-          setCicloAtivo(cicloComProgresso);
-        }
-      } catch (err) {
-        console.error("Erro ao buscar dados do dashboard:", err);
-      } finally {
-        setCarregando(false);
-      }
-    };
-
-    fetchDashboard();
-  }, [refetchKey]);
-
-  const totais = sessoes.reduce(
-    (acc, sessao) => {
-      acc.tempo += sessao.tempoEstudado;
-      acc.questoes += sessao.totalQuestoes || 0;
-      acc.acertos += sessao.acertosQuestoes || 0;
-      acc.erros += sessao.errosQuestoes || 0;
-      return acc;
-    },
-    { tempo: 0, questoes: 0, acertos: 0, erros: 0 }
-  );
-
-  const percentualAcerto = totais.questoes > 0
-    ? (totais.acertos / totais.questoes) * 100
-    : 0;
+  const percentualAcerto = totais.questoes > 0 ? (totais.acertos / totais.questoes) * 100 : 0;
 
   if (carregando) {
-    return <div className={styles.container}>Carregando dados do dashboard...</div>;
+    return <div className={styles.container}>A carregar...</div>;
   }
 
   return (
@@ -84,25 +58,25 @@ export function DashboardPage() {
       <h1>Dashboard</h1>
       <div className={styles.grid}>
         <KpiCard title="Tempo de Estudo" value={formatTime(totais.tempo)} />
-        <KpiCard
-          title="Desempenho"
-          value={`${percentualAcerto.toFixed(1)}%`}
-          details={<span>Certas: {totais.acertos} / <span className={styles.errorCount}>Erradas: {totais.erros}</span></span>}
-        />
+        <KpiCard title="Desempenho" value={`${percentualAcerto.toFixed(1)}%`} details={<span>Certas: {totais.acertos} / <span className={styles.errorCount}>Erradas: {totais.erros}</span></span>} />
         <KpiCard title="Progresso no Edital" value="-" details={<span>- Tópicos Concluídos</span>} />
         <KpiCard title="Sessões Realizadas" value={sessoes.length.toString()} />
       </div>
-
-      {cicloAtivo && (
-        <div style={{ marginTop: '2rem' }}>
-          <h2>Ciclo Ativo</h2>
-          <CicloStatusChart cicloAtivo={cicloAtivo} />
+      <div className={styles.mainGrid}>
+        <div className={styles.painelGeral}>
+          <h2>Painel Geral</h2>
+          <DisciplinaSummaryPanel summaryData={summary} />
         </div>
-      )}
-
-      <div style={{ marginTop: '2rem' }}>
-        <h2>Painel Geral</h2>
-        <DisciplinaSummaryPanel summaryData={summary} />
+        <div className={styles.cicloStatus}>
+          {ciclo ? (
+            <CicloStatusChart cicloAtivo={ciclo} />
+          ) : (
+            <div className={styles.noCiclo}>
+              <h3>Nenhum Ciclo Cadastrado</h3>
+              <p>Vá para a página de Planeamento para criar o seu primeiro ciclo.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
