@@ -25,18 +25,28 @@ export function DashboardPage() {
   const [carregando, setCarregando] = useState(true);
   const { refetchData } = useData();
 
-  useEffect(() => {
+  // Função que busca todos os dados do dashboard
+  const fetchDashboardData = async () => {
     setCarregando(true);
-    Promise.all([
-      getAllSessoes({}),
-      getDisciplinasSummary(),
-      getAllCiclosComProgresso()
-    ]).then(([sessoesData, summaryData, ciclosData]) => {
+    try {
+      const [sessoesData, summaryData, ciclosData] = await Promise.all([
+        getAllSessoes({}),
+        getDisciplinasSummary(),
+        getAllCiclosComProgresso()
+      ]);
       setSessoes(sessoesData);
       setSummary(summaryData);
       setCiclos(ciclosData);
-    }).catch(err => console.error("Erro ao buscar dados do dashboard:", err))
-      .finally(() => setCarregando(false));
+    } catch (err) {
+      console.error("Erro ao buscar dados do dashboard:", err);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
+  // Busca inicial e refetch sempre que refetchData muda
+  useEffect(() => {
+    fetchDashboardData();
   }, [refetchData]);
 
   const totais = sessoes.reduce((acc, sessao) => {
@@ -48,8 +58,6 @@ export function DashboardPage() {
   }, { tempo: 0, questoes: 0, acertos: 0, erros: 0 });
 
   const percentualAcerto = totais.questoes > 0 ? (totais.acertos / totais.questoes) * 100 : 0;
-  
-  //const totalConclusoes = ciclos.reduce((acc, ciclo) => acc + ciclo.conclusoes, 0);
 
   if (carregando) {
     return <div className={styles.container}>Carregando...</div>;
@@ -67,13 +75,13 @@ export function DashboardPage() {
         />
         <KpiCard title="Sessões Realizadas" value={sessoes.length.toString()} />
       </div>
-      
+
       <div className={styles.mainGrid}>
         <div className={styles.painelGeral}>
           <h2>Painel Geral</h2>
           <DisciplinaSummaryPanel summaryData={summary} />
         </div>
-        
+
         <div className={styles.ciclosContainer}>
           <h2>Progresso dos Ciclos</h2>
           {ciclos.length > 0 ? (

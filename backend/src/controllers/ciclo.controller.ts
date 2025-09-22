@@ -10,27 +10,37 @@ export const cicloController = {
       if (!nome) return res.status(400).json({ error: 'O nome do ciclo é obrigatório.' });
       const ciclo = await cicloService.create(nome, userId);
       res.status(201).json(ciclo);
-    } catch (error) { res.status(500).json({ error: 'Falha ao criar ciclo.' }); }
+    } catch {
+      res.status(500).json({ error: 'Falha ao criar ciclo.' });
+    }
   },
+
   getAllByUser: async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId;
       if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
       const ciclos = await cicloService.getAllByUser(userId);
       res.status(200).json(ciclos);
-    } catch (error) { res.status(500).json({ error: 'Falha ao buscar ciclos.' }); }
+    } catch {
+      res.status(500).json({ error: 'Falha ao buscar ciclos.' });
+    }
   },
+
   addItem: async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId;
       if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
       const { cicloId } = req.params;
       const { disciplinaId, tempoMinutos } = req.body;
-      if (!disciplinaId || !tempoMinutos) return res.status(400).json({ error: 'Disciplina e tempo são obrigatórios.' });
+      if (!disciplinaId || !tempoMinutos)
+        return res.status(400).json({ error: 'Disciplina e tempo são obrigatórios.' });
       const item = await cicloService.addItem(cicloId, disciplinaId, Number(tempoMinutos), userId);
       res.status(201).json(item);
-    } catch (error: any) { res.status(500).json({ error: 'Falha ao adicionar item ao ciclo.' }); }
+    } catch {
+      res.status(500).json({ error: 'Falha ao adicionar item ao ciclo.' });
+    }
   },
+
   removeItem: async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId;
@@ -38,9 +48,12 @@ export const cicloController = {
       const { itemId } = req.params;
       await cicloService.removeItem(itemId, userId);
       res.status(204).send();
-    } catch (error) { res.status(500).json({ error: 'Falha ao remover item do ciclo.' }); }
+    } catch {
+      res.status(500).json({ error: 'Falha ao remover item do ciclo.' });
+    }
   },
-    update: async (req: Request, res: Response) => {
+
+  update: async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId;
       if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
@@ -48,8 +61,10 @@ export const cicloController = {
       const { nome } = req.body;
       if (!nome) return res.status(400).json({ error: 'O nome é obrigatório.' });
       await cicloService.update(cicloId, nome, userId);
-      res.status(200).json({ message: 'Ciclo atualizado com sucesso.'});
-    } catch (error) { res.status(500).json({ error: 'Falha ao atualizar ciclo.' }); }
+      res.status(200).json({ message: 'Ciclo atualizado com sucesso.' });
+    } catch {
+      res.status(500).json({ error: 'Falha ao atualizar ciclo.' });
+    }
   },
 
   delete: async (req: Request, res: Response) => {
@@ -59,16 +74,17 @@ export const cicloController = {
       const { cicloId } = req.params;
       await cicloService.delete(cicloId, userId);
       res.status(204).send();
-    } catch (error) { res.status(500).json({ error: 'Falha ao deletar ciclo.' }); }
+    } catch {
+      res.status(500).json({ error: 'Falha ao deletar ciclo.' });
+    }
   },
-    updateOrdemItens: async (req: Request, res: Response) => {
+
+  updateOrdemItens: async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId;
       if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
-
       const { cicloId } = req.params;
-      const { itens } = req.body; // Espera um array de { id, ordem }
-
+      const { itens } = req.body;
       await cicloService.updateOrdemItens(cicloId, itens, userId);
       res.status(200).json({ message: 'Ordem atualizada com sucesso.' });
     } catch (error: any) {
@@ -76,24 +92,14 @@ export const cicloController = {
     }
   },
 
-  getPrimeiroCicloStatus: async (req: Request, res: Response) => {
-    try {
-      const userId = req.user?.userId;
-      if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
-      const status = await cicloService.getPrimeiroCicloStatus(userId);
-      res.status(200).json(status);
-    } catch (error) {
-      res.status(500).json({ error: 'Falha ao buscar status do ciclo.' });
-    }
-  },
-    getAllCiclosComProgresso: async (req: Request, res: Response) => {
+  getAllCiclosComProgresso: async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId;
       if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
 
       const ciclosComProgresso = await cicloService.getAllCiclosComProgresso(userId);
       res.status(200).json(ciclosComProgresso);
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Falha ao buscar progresso dos ciclos.' });
     }
   },

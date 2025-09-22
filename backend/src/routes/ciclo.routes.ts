@@ -24,6 +24,6 @@ router.patch('/:cicloId/items/reorder', cicloController.updateOrdemItens);
 
 // --- NOVA ROTA ADICIONADA ---
 // Rota para buscar o status do ciclo ativo para o dashboard
-router.get('/status', cicloController.getPrimeiroCicloStatus);
+
 router.get('/progresso-all', cicloController.getAllCiclosComProgresso);
 export default router;

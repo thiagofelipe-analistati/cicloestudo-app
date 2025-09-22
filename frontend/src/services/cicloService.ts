@@ -20,33 +20,28 @@ export interface Ciclo {
 
 export interface CicloComProgresso extends Omit<Ciclo, 'itens'> {
   itens: CicloItemComProgresso[];
+  conclusoes: number;
 }
-export interface Ciclo {
-  id: string;
-  nome: string;
-  ativo: boolean;
-  itens: CicloItem[];
-}
+
 export const getAllCiclos = async (): Promise<Ciclo[]> => {
-  try {
-    const response = await api.get('/ciclos');
-    return response.data || [];
-  } catch (error) {
-    console.error("API Error: getAllCiclos", error);
-    return [];
-  }
+  const response = await api.get('/ciclos');
+  return response.data || [];
 };
+
 export const createCiclo = async (nome: string): Promise<Ciclo> => {
   const response = await api.post('/ciclos', { nome });
   return response.data;
 };
+
 export const addItemAoCiclo = async (cicloId: string, disciplinaId: string, tempoMinutos: number): Promise<CicloItem> => {
   const response = await api.post(`/ciclos/${cicloId}/items`, { disciplinaId, tempoMinutos });
   return response.data;
 };
+
 export const removeItemDoCiclo = async (itemId: string): Promise<void> => {
   await api.delete(`/ciclos/items/${itemId}`);
 };
+
 export const updateCiclo = async (cicloId: string, nome: string): Promise<void> => {
   await api.put(`/ciclos/${cicloId}`, { nome });
 };
@@ -54,39 +49,12 @@ export const updateCiclo = async (cicloId: string, nome: string): Promise<void> 
 export const deleteCiclo = async (cicloId: string): Promise<void> => {
   await api.delete(`/ciclos/${cicloId}`);
 };
+
 export const reorderCicloItens = async (cicloId: string, itens: { id: string; ordem: number }[]): Promise<void> => {
   await api.patch(`/ciclos/${cicloId}/items/reorder`, { itens });
 };
-export const getPrimeiroCicloStatus = async (): Promise<CicloComProgresso | null> => {
-  try {
-    const response = await api.get('/ciclos/status');
-    return response.data;
-  } catch (error) {
-    console.error("Erro ao buscar status do ciclo:", error);
-    return null;
-  }
-};
-/*export const getAllCiclosComProgresso = async (): Promise<CicloComProgresso[]> => {
-  const ciclos = await getAllCiclos();
-  return ciclos.map(ciclo => ({
-    ...ciclo,
-    itens: ciclo.itens.map(item => ({
-      ...item,
-      tempoEstudadoMinutos: 0, // inicializa com 0
-    })),
-  }));
-};*/
-export interface CicloComProgresso extends Omit<Ciclo, 'itens'> {
-  conclusoes: number;
-  itens: CicloItemComProgresso[];
-}
 
 export const getAllCiclosComProgresso = async (): Promise<CicloComProgresso[]> => {
-  try {
-    const response = await api.get('/ciclos/progresso-all'); // A rota que você criar
-    return response.data || [];
-  } catch (error) {
-    console.error("Erro ao buscar todos os ciclos com progresso:", error);
-    return [];
-  }
+  const response = await api.get('/ciclos/progresso-all');
+  return response.data || [];
 };
