@@ -12,6 +12,7 @@ import type { DisciplinaSummary } from '../services/disciplinaService';
 import { getDisciplinasSummary } from '../services/disciplinaService';
 import type { CicloComProgresso } from '../services/cicloService';
 import { getAllCiclosComProgresso } from '../services/cicloService';
+import { NavLink } from 'react-router-dom';
 
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || seconds < 0) return "00h00min";
@@ -95,7 +96,10 @@ export function DashboardPage() {
           ) : (
             <div className={styles.noCiclo}>
               <h3>Nenhum Ciclo Cadastrado</h3>
-              <p>Vá para a página de Planejamento para criar o seu primeiro ciclo.</p>
+              <p>
+                               <NavLink to="/planejamento" className={({ isActive }) => isActive ? styles.active : ''}>
+                <span className={styles.link}>  Clique  aqui</span>
+              </NavLink>  para criar seu primeiro ciclo.</p>
             </div>
           )}
         </div>

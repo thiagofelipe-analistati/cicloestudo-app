@@ -23,9 +23,7 @@
   gap: 1.5rem;
 }
 
-.painelGeral {
-  /* O componente DisciplinaSummaryPanel já tem seu próprio estilo de card */
-}
+
 
 /* --- CONTAINER DOS CICLOS (AQUI ESTÁ A CORREÇÃO) --- */
 .ciclosContainer {
@@ -63,4 +61,28 @@
   .mainGrid {
     grid-template-columns: 1fr; /* Coluna única em telas menores */
   }
+}
+.navMenu {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.navMenu button {
+  background-color: var(--cor-secundaria);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.navMenu button:hover {
+  background-color: #555;
+}
+
+.noCiclo .link {
+  color: var(--cor-secundaria);
+  text-decoration: none;
+  cursor: pointer;
 }

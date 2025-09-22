@@ -14,6 +14,11 @@ export function Sidebar() {
         <nav>
           <ul>
             <li>
+              <NavLink to="/" className={({ isActive }) => isActive ? styles.active : ''}>
+                Dashboard
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/disciplinas" className={({ isActive }) => isActive ? styles.active : ''}>
                 Disciplinas
               </NavLink>
