@@ -62,56 +62,65 @@ export const cicloService = {
     return prisma.$transaction(transacao);
   },
 
-  getAllCiclosComProgresso: async (userId: string) => {
-    const ciclos = await prisma.ciclo.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' },
-      include: {
-        itens: {
-          orderBy: { ordem: 'asc' },
-          include: { disciplina: { select: { id: true, nome: true } } },
-        },
+getAllCiclosComProgresso: async (userId: string) => {
+  const ciclos = await prisma.ciclo.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+    include: {
+      itens: {
+        orderBy: { ordem: 'asc' },
+        include: { disciplina: { select: { id: true, nome: true } } },
       },
+    },
+  });
+
+  return Promise.all(ciclos.map(async ciclo => {
+    // Pegamos todas as sessões do usuário para as disciplinas do ciclo
+    const sessoes = await prisma.sessaoEstudo.findMany({
+      where: {
+        userId,
+        disciplinaId: { in: ciclo.itens.map(i => i.disciplinaId) },
+        createdAt: ciclo.ultimaConclusaoEm ? { gt: ciclo.ultimaConclusaoEm } : undefined,
+      },
+      select: { disciplinaId: true, tempoEstudado: true },
     });
 
-    return Promise.all(ciclos.map(async ciclo => {
-      const tempoEstudadoPorDisciplina = new Map<string, number>();
+    // Criar um array para armazenar tempo restante por sessão
+    const sessoesRestantes = sessoes.map(s => ({ ...s }));
 
-      const sessoes = await prisma.sessaoEstudo.findMany({
-        where: {
-          userId,
-          disciplinaId: { in: ciclo.itens.map(i => i.disciplinaId) },
-          createdAt: ciclo.ultimaConclusaoEm ? { gt: ciclo.ultimaConclusaoEm } : undefined,
-        },
-        select: { disciplinaId: true, tempoEstudado: true },
-      });
+    const itensComProgresso = ciclo.itens.map(item => {
+      let tempoAcumulado = 0;
+      let restanteItem = item.tempoMinutos * 60; // em segundos
 
-      for (const s of sessoes) {
-        const atual = tempoEstudadoPorDisciplina.get(s.disciplinaId) || 0;
-        tempoEstudadoPorDisciplina.set(s.disciplinaId, atual + s.tempoEstudado);
+      // Para cada sessão da disciplina, consumir o tempo restante do item
+      for (const s of sessoesRestantes.filter(s => s.disciplinaId === item.disciplinaId)) {
+        if (restanteItem <= 0) break;
+        const usar = Math.min(s.tempoEstudado, restanteItem);
+        tempoAcumulado += usar;
+        s.tempoEstudado -= usar; // diminuir da sessão para não duplicar em outro item
+        restanteItem -= usar;
       }
 
-      const itensComProgresso = ciclo.itens.map(item => {
-        const tempoEstudadoSegundos = tempoEstudadoPorDisciplina.get(item.disciplinaId) || 0;
-        return { ...item, tempoEstudadoMinutos: Math.floor(tempoEstudadoSegundos / 60) };
+      return { ...item, tempoEstudadoMinutos: Math.floor(tempoAcumulado / 60) };
+    });
+
+    // Atualiza conclusões se necessário
+    const totalPlanejado = ciclo.itens.reduce((acc, i) => acc + i.tempoMinutos, 0);
+    const totalEstudado = itensComProgresso.reduce(
+      (acc, i) => acc + Math.min(i.tempoEstudadoMinutos, i.tempoMinutos),
+      0
+    );
+
+    let conclusoes = ciclo.conclusoes || 0;
+    if (totalPlanejado > 0 && totalEstudado >= totalPlanejado) {
+      conclusoes++;
+      await prisma.ciclo.update({
+        where: { id: ciclo.id },
+        data: { conclusoes, ultimaConclusaoEm: new Date() },
       });
+    }
 
-      const totalPlanejado = ciclo.itens.reduce((acc, i) => acc + i.tempoMinutos, 0);
-      const totalEstudado = itensComProgresso.reduce(
-        (acc, i) => acc + Math.min(i.tempoEstudadoMinutos, i.tempoMinutos),
-        0
-      );
-
-      let conclusoes = ciclo.conclusoes || 0;
-      if (totalPlanejado > 0 && totalEstudado >= totalPlanejado) {
-        conclusoes++;
-        await prisma.ciclo.update({
-          where: { id: ciclo.id },
-          data: { conclusoes, ultimaConclusaoEm: new Date() },
-        });
-      }
-
-      return { ...ciclo, itens: itensComProgresso, conclusoes };
-    }));
-  },
+    return { ...ciclo, itens: itensComProgresso, conclusoes };
+  }));
+},
 };
