@@ -1,3 +1,5 @@
+// src/pages/DashboardPage.tsx
+
 import { useState, useEffect } from 'react';
 import styles from './DashboardPage.module.css';
 import { useData } from '../contexts/DataContext';
@@ -23,7 +25,9 @@ export function DashboardPage() {
   const [summary, setSummary] = useState<DisciplinaSummary[]>([]);
   const [ciclos, setCiclos] = useState<CicloComProgresso[]>([]);
   const [carregando, setCarregando] = useState(true);
-  const { refetchData } = useData();
+  
+  // AJUSTE 1: Pegar o `refetchKey` do contexto em vez de `refetchData`.
+  const { refetchKey } = useData();
 
   // Função que busca todos os dados do dashboard
   const fetchDashboardData = async () => {
@@ -44,10 +48,10 @@ export function DashboardPage() {
     }
   };
 
-  // Busca inicial e refetch sempre que refetchData muda
+  // AJUSTE 2: Usar `refetchKey` como dependência para disparar a atualização.
   useEffect(() => {
     fetchDashboardData();
-  }, [refetchData]);
+  }, [refetchKey]);
 
   const totais = sessoes.reduce((acc, sessao) => {
     acc.tempo += sessao.tempoEstudado;
