@@ -10,7 +10,8 @@ interface HeaderProps {
 }
 
 export function Header({ onOpenChronometer, onOpenNewStudySession }: HeaderProps) {
-  const { user, logout } = useAuth();
+  //const { user, logout } = useAuth();
+  const {  logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
