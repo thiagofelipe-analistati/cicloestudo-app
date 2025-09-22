@@ -49,7 +49,7 @@ export function DashboardPage() {
 
   const percentualAcerto = totais.questoes > 0 ? (totais.acertos / totais.questoes) * 100 : 0;
   
-  const totalConclusoes = ciclos.reduce((acc, ciclo) => acc + ciclo.conclusoes, 0);
+  //const totalConclusoes = ciclos.reduce((acc, ciclo) => acc + ciclo.conclusoes, 0);
 
   if (carregando) {
     return <div className={styles.container}>Carregando...</div>;
@@ -66,10 +66,6 @@ export function DashboardPage() {
           details={<span>Certas: {totais.acertos} / <span className={styles.errorCount}>Erradas: {totais.erros}</span></span>}
         />
         <KpiCard title="Sessões Realizadas" value={sessoes.length.toString()} />
-        <KpiCard
-          title="Ciclos Finalizados"
-          value={totalConclusoes.toString()}
-        />
       </div>
       
       <div className={styles.mainGrid}>

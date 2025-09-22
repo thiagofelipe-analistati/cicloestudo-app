@@ -1,3 +1,4 @@
+/* src/components/CicloStatusChart/CicloStatusChart.module.css */
 .chartContainer {
   background-color: var(--cor-fundo-secundario);
   padding: 1.5rem;
@@ -6,31 +7,37 @@
   height: 100%;
 }
 
-.chartContainer h3 {
-  margin-top: 0;
-  text-align: center;
+/* --- NOVOS ESTILOS PARA O CABEÇALHO --- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+.header h3 {
+  margin: 0;
+}
+.conclusoes {
+  font-size: 0.9rem;
+  color: var(--cor-texto-secundario);
+}
+.conclusoes strong {
+  font-weight: bold;
+  color: var(--cor-secundaria);
+  margin-left: 0.5rem;
 }
 
-.chartWrapper {
-  position: relative;
-}
-
+.chartWrapper { position: relative; }
 .centerText {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
 }
-
 .centerText span {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--cor-texto-titulos);
+  font-size: 2rem; font-weight: bold; color: var(--cor-texto-titulos);
 }
-
 .centerText small {
-  font-size: 0.9rem;
-  color: var(--cor-texto-secundario);
-  display: block;
+  font-size: 0.9rem; color: var(--cor-texto-secundario); display: block;
 }

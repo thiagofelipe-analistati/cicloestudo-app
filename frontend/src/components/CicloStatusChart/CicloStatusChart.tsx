@@ -45,6 +45,10 @@ export function CicloStatusChart({ cicloAtivo }: CicloStatusChartProps) {
   return (
     <div className={styles.chartContainer}>
       <h3>{cicloAtivo.nome}</h3>
+        <div className={styles.conclusoes}>
+          <span>Ciclos Finalizados:</span>
+          <strong>{cicloAtivo.conclusoes}</strong>
+        </div>
       <div className={styles.chartWrapper}>
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
