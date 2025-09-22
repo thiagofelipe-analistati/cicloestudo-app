@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import styles from './CicloStatusChart.module.css';
 import type { CicloComProgresso } from '../../services/cicloService';
 
@@ -6,25 +6,38 @@ interface CicloStatusChartProps {
   cicloAtivo: CicloComProgresso;
 }
 
-const softColors = ["#ff0000", "#70c927", "#FFD93D", "#3d9448", "#3f84e6", "#a14fe0"];
-
-const getColor = (index: number): string => softColors[index % softColors.length];
+const softColors = ["#ff6b6b", "#70c927", "#FFD93D", "#3d9448", "#3f84e6", "#a14fe0"];
 
 export function CicloStatusChart({ cicloAtivo }: CicloStatusChartProps) {
-  const totalPlanejado = cicloAtivo.itens.reduce((acc, item) => acc + item.tempoMinutos, 0);
+  // dados para cada disciplina: estudado e restante
+  const dadosParaGrafico = cicloAtivo.itens.flatMap((item, index) => {
+    const cor = softColors[index % softColors.length];
+    const estudado = Math.min(item.tempoEstudadoMinutos || 0, item.tempoMinutos);
+    const restante = item.tempoMinutos - estudado;
+    return [
+      { name: item.disciplina.nome, value: estudado, color: cor },
+      { name: `${item.disciplina.nome}-restante`, value: restante, color: `${cor}55` }, // 33% opacidade
+    ];
+  });
 
-  const totalEstudado = cicloAtivo.itens.reduce(
-    (acc, item) => acc + Math.min(item.tempoEstudadoMinutos ?? 0, item.tempoMinutos),
-    0
-  );
-
+  const totalPlanejado = cicloAtivo.itens.reduce((acc, i) => acc + i.tempoMinutos, 0);
+  const totalEstudado = cicloAtivo.itens.reduce((acc, i) => acc + Math.min(i.tempoEstudadoMinutos || 0, i.tempoMinutos), 0);
   const progressoGeral = totalPlanejado > 0 ? (totalEstudado / totalPlanejado) * 100 : 0;
 
-  const dadosParaGrafico = cicloAtivo.itens.map((item, index) => ({
-    name: item.disciplina.nome,
-    value: item.tempoMinutos,
-    color: getColor(index),
-  }));
+  // legenda customizada com a cor principal
+  const renderLegend = () => (
+    <div className={styles.customLegend}>
+      {cicloAtivo.itens.map((item, index) => {
+        const cor = softColors[index % softColors.length];
+        return (
+          <div key={item.disciplina.id} className={styles.legendItem}>
+            <span className={styles.legendColor} style={{ backgroundColor: cor }} />
+            {item.disciplina.nome}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className={styles.chartContainer}>
@@ -36,19 +49,38 @@ export function CicloStatusChart({ cicloAtivo }: CicloStatusChartProps) {
       <div className={styles.chartWrapper}>
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
-            <Pie data={dadosParaGrafico} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+            <Pie
+              data={dadosParaGrafico}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              paddingAngle={2}
+              cornerRadius={4}
+              isAnimationActive={false}
+            >
               {dadosParaGrafico.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip formatter={(value: number) => `${value} min`} />
-            <Legend />
+            <Tooltip
+              formatter={(value: number, name: string) => {
+                if (name.endsWith('-restante')) return [`${value} min restantes`, name.replace('-restante','')];
+                return [`${value} min`, name];
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
+
+        {/* TEXTO CENTRAL */}
         <div className={styles.centerText}>
           <span>{progressoGeral.toFixed(0)}%</span>
           <small>Concluído</small>
         </div>
+
+        {renderLegend()}
       </div>
     </div>
   );
