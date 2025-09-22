@@ -27,14 +27,22 @@ export function DisciplinaSummaryPanel({ summaryData }: DisciplinaSummaryPanelPr
         <span className={styles.percentual}>%</span>
       </div>
       <ul className={styles.list}>
-        {summaryData.map(item => (
-          <li key={item.id} className={styles.listItem}>
-            <span className={styles.disciplina}>{item.nome}</span>
-            <span className={styles.tempo}>{formatTime(item.tempoTotal)}</span>
-            <span className={styles.questoes}>{item.acertosTotal} / {item.questoesTotal}</span>
-            <span className={styles.percentual}>{calculatePerformance(item.acertosTotal, item.questoesTotal)}%</span>
-          </li>
-        ))}
+        {summaryData.map(item => {
+          const erros = item.questoesTotal - item.acertosTotal;
+          return (
+            <li key={item.id} className={styles.listItem}>
+              <span className={styles.disciplina}>{item.nome}</span>
+              <span className={styles.tempo}>{formatTime(item.tempoTotal)}</span>
+              <span className={styles.questoes}>
+                <span style={{ color: "blue" }}>{item.acertosTotal}</span> /{" "}
+                <span style={{ color: "red" }}>{erros}</span>
+              </span>
+              <span className={styles.percentual}>
+                {calculatePerformance(item.acertosTotal, item.questoesTotal)}%
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

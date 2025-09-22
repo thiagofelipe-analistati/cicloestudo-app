@@ -30,9 +30,7 @@ export function Header({ onOpenChronometer, onOpenNewStudySession }: HeaderProps
 
   return (
     <header className={styles.header}>
-      <div className={styles.userInfo}>
-        <span>Olá, {user?.email || 'Concurseiro'}!</span>
-      </div>
+ 
 
       <div className={styles.actionsContainer}>
         <button className={styles.chronometerButton} onClick={onOpenChronometer}>
@@ -48,7 +46,7 @@ export function Header({ onOpenChronometer, onOpenNewStudySession }: HeaderProps
           <button className={styles.profileButton} onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
             <FaUserCircle size={24} />
           </button>
-
+        
           {isDropdownOpen && (
             <div className={styles.dropdown}>
               <button onClick={handleLogout} className={styles.dropdownItem}>

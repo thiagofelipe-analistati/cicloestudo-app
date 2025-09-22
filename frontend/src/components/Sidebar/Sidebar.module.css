@@ -1,4 +1,4 @@
-/* src/components/Sidebar/Sidebar.module.css */
+/* Sidebar padrão */
 .sidebar {
   width: 250px;
   background-color: var(--cor-fundo-secundario);
@@ -18,10 +18,12 @@
 }
 
 .logo {
-  height: 100px;
+  max-height: 80px; /* evita estourar no mobile */
   width: auto;
+  object-fit: contain;
 }
 
+/* Navegação */
 .sidebar nav ul {
   list-style: none;
   padding: 0;
@@ -52,6 +54,7 @@
   box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
 }
 
+/* Botão adição estudo */
 .addStudyButton {
   background-color: var(--cor-secundaria);
   color: var(--cor-texto-branco);
@@ -67,15 +70,45 @@
   background-color: #2ecc71;
 }
 
-/* Estilos para o menu hambúrguer em telas pequenas */
-/* (A lógica para o menu hambúrguer será adicionada no futuro no .tsx) */
+/* Botão hambúrguer */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  background: var(--cor-secundaria);
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  z-index: 1100;
+  transition: background 0.2s;
+}
+
+.hamburger:hover {
+  background: #555;
+}
+
+/* Responsivo */
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed; /* Fica por cima de tudo */
-    transform: translateX(-100%); /* Começa escondido */
-    z-index: 1000;
+  .hamburger {
+    display: block; /* mostra botão em telas pequenas */
   }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    transform: translateX(-100%);
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+  }
+
   .sidebar.open {
-    transform: translateX(0); /* Mostra o menu */
+    transform: translateX(0);
   }
 }
