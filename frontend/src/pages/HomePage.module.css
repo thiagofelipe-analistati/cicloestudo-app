@@ -103,3 +103,76 @@
   padding: 0.75rem;
   border-top: 1px solid var(--cor-fundo-principal);
 }
+/* Estilo do textarea para adicionar disciplina/tópico */
+.addForm textarea {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical; /* permite aumentar só na vertical */
+  min-height: 60px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background-color: #fff;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.addForm textarea:focus {
+  border-color: var(--cor-primaria);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.25); /* brilho leve azul */
+}
+
+/* Container flexível para textarea + botão */
+.addForm {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start; /* botão alinha ao topo do textarea */
+}
+/* Container para o formulário de adicionar tópicos */
+.addTopicosForm {
+  display: flex; /* Ativa o layout flexível */
+  align-items: flex-start; /* Alinha o topo do botão com o do textarea */
+  gap: 0.75rem; /* Espaço entre o textarea e o botão */
+  margin-top: 1rem;
+}
+
+/* Estilo específico para o textarea de tópicos */
+.topicosTextarea {
+  flex: 1; /* Faz o textarea ocupar todo o espaço horizontal disponível */
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.topicosTextarea:focus {
+  outline: none;
+  border-color: var(--cor-principal);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Estilo para o botão Salvar Tópicos */
+.saveButton {
+  background-color: var(--cor-principal);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.saveButton:hover {
+  background-color: var(--cor-principal-hover);
+}
