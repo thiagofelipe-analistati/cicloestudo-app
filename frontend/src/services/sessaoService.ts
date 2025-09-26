@@ -1,7 +1,7 @@
 // src/services/sessaoService.ts
 import api from './api';
 
-// Este tipo precisa ser exportado para ser usado em outras páginas
+// Este tipo representa uma sessão que VEM da API (usado em listas, etc)
 export interface SessaoEstudo {
   id: string;
   data: Date;
@@ -10,24 +10,34 @@ export interface SessaoEstudo {
   totalQuestoes?: number | null;
   acertosQuestoes?: number | null;
   errosQuestoes?: number | null;
-  disciplina: { nome: string }; // Incluímos o nome da disciplina
-  topico?: { nome: string } | null; // e o nome do tópico
+  disciplina: { nome: string };
+  topico?: { nome: string } | null;
 }
 
-export const createSessaoEstudo = async (data: any) => {
-  const dataToSend = {
-    ...data,
-    tempoEstudado: Number(data.tempoEstudado),
-    totalQuestoes: Number(data.totalQuestoes),
-    acertosQuestoes: Number(data.acertosQuestoes),
-    errosQuestoes: Number(data.errosQuestoes),
-    topicoId: data.topicoId || null,
-  };
-  const response = await api.post('/sessoes', dataToSend);
+// NOVO: Este tipo representa os dados que ENVIAMOS para a API para criar uma sessão
+export interface CreateSessaoPayload {
+  data: string | Date;
+  tempoEstudado: number;
+  categoria: string;
+  disciplinaId: string;
+  topicoId: string | null;
+  totalQuestoes: number;
+  acertosQuestoes: number;
+  errosQuestoes: number;
+  concluiuTopico?: boolean;  // <-- Propriedade opcional
+  agendarRevisao?: boolean;  // <-- Propriedade opcional
+}
+
+
+// A função agora usa o novo tipo, garantindo que só os dados corretos sejam enviados
+export const createSessaoEstudo = async (data: CreateSessaoPayload) => {
+  // A lógica de conversão e adição de campos já foi feita no componente,
+  // então aqui apenas enviamos os dados para a API.
+  const response = await api.post('/sessoes', data);
   return response.data;
 };
 
-// Nova função para buscar sessões com filtros
+// A função de buscar sessões continua a mesma
 export const getAllSessoes = async (filters: {
   disciplinaId?: string;
   dataInicio?: Date;

@@ -34,6 +34,9 @@ export function Sidebar() {
               <li>
                 <NavLink to="/planejamento" className={({ isActive }) => isActive ? styles.active : ''} onClick={() => setOpen(false)}>Planejamento</NavLink>
               </li>
+              <li>
+                <NavLink to="/revisoes" className={({ isActive }) => isActive ? styles.active : ''} onClick={() => setOpen(false)}>Revisões</NavLink>
+              </li>
             </ul>
           </nav>
         </div>

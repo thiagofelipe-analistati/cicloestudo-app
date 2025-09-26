@@ -5,6 +5,11 @@ import disciplinaRoutes from './routes/disciplina.routes';
 import sessaoRoutes from './routes/sessao.routes';
 import authRoutes from './routes/auth.routes';
 import cicloRoutes from './routes/ciclo.routes'; 
+import revisaoRoutes from './routes/revisao.routes'; // <-- IMPORTAR AS NOVAS ROTAS
+
+
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -29,7 +34,7 @@ app.use('/api/sessoes', sessaoRoutes);
 app.use('/api/disciplinas', disciplinaRoutes);
 app.use('/api/sessoes', sessaoRoutes);
 app.use('/api/ciclos', cicloRoutes);
-
+app.use('/api/revisoes', revisaoRoutes); // <-- USAR AS NOVAS ROTAS
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });

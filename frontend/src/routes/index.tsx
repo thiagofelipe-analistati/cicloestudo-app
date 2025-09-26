@@ -1,4 +1,5 @@
 // src/routes/index.tsx
+
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import { DashboardPage } from "../pages/DashboardPage.tsx";
@@ -8,11 +9,13 @@ import { LoginPage } from "../pages/LoginPage.tsx";
 import { RegisterPage } from "../pages/RegisterPage.tsx";
 import { ProtectedRoute } from "./ProtectedRoute.tsx";
 import { PlanejamentoPage } from "../pages/PlanejamentoPage.tsx";
+// CAMINHO CORRIGIDO E SIMPLIFICADO ABAIXO:
+import { RevisoesPage } from "../pages/RevisoesPage";
 
 export const router = createBrowserRouter([
   // Rotas públicas
   { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
+  { path: "register", element: <RegisterPage /> },
 
   // Rotas privadas
   {
@@ -26,7 +29,8 @@ export const router = createBrowserRouter([
           { index: true, element: <DashboardPage /> },
           { path: "disciplinas", element: <DisciplinasPage /> },
           { path: "historico", element: <HistoricoPage /> },
-          { path: "/planejamento", element: <PlanejamentoPage /> },
+          { path: "planejamento", element: <PlanejamentoPage /> },
+          { path: "revisoes", element: <RevisoesPage /> },
         ],
       },
     ]

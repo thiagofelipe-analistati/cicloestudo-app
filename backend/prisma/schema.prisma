@@ -1,4 +1,5 @@
 // src/prisma/schema.prisma
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -6,6 +7,13 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+}
+
+// NOVO: Enum para o status da revisão
+enum StatusRevisao {
+  PENDENTE
+  CONCLUIDA
+  ATRASADA
 }
 
 model User {
@@ -19,18 +27,19 @@ model User {
   topicos     Topico[]
   ciclos      Ciclo[]
   cicloItens  CicloItem[]
+  revisoes    Revisao[] // NOVO: Adiciona relação com revisões
 }
 
 model Disciplina {
-  id           String      @id @default(uuid())
-  nome         String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  userId       String
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessoes      SessaoEstudo[]
-  topicos      Topico[]
-  cicloItens   CicloItem[]
+  id         String         @id @default(uuid())
+  nome       String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  userId     String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessoes    SessaoEstudo[]
+  topicos    Topico[]
+  cicloItens CicloItem[]
 }
 
 model Topico {
@@ -41,13 +50,28 @@ model Topico {
   totalQuestoes   Int            @default(0)
   acertosQuestoes Int            @default(0)
   errosQuestoes   Int            @default(0)
+  concluido       Boolean        @default(false) // NOVO: Campo para marcar o tópico como finalizado
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   disciplinaId    String
   userId          String
   sessoes         SessaoEstudo[]
+  revisoes        Revisao[] // NOVO: Adiciona relação com revisões
   disciplina      Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// NOVO: Modelo completo para as Revisões
+model Revisao {
+  id           String        @id @default(uuid())
+  dataAgendada DateTime
+  status       StatusRevisao @default(PENDENTE)
+  topicoId     String
+  userId       String
+  topico       Topico        @relation(fields: [topicoId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model SessaoEstudo {
@@ -71,16 +95,16 @@ model SessaoEstudo {
 }
 
 model Ciclo {
-  id              String      @id @default(uuid())
-  nome            String
-  ordemItemAtual  Int         @default(1)
-  conclusoes      Int         @default(0)
-  ultimaConclusaoEm  DateTime?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId          String
-  itens           CicloItem[]
+  id                String      @id @default(uuid())
+  nome              String
+  ordemItemAtual    Int         @default(1)
+  conclusoes        Int         @default(0)
+  ultimaConclusaoEm DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  itens             CicloItem[]
 }
 
 model CicloItem {

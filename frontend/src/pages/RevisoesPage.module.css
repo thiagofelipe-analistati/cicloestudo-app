@@ -1,0 +1,91 @@
+/* ARQUIVO: frontend/src/pages/RevisoesPage/RevisoesPage.module.css */
+
+.container {
+  padding: 2rem;
+}
+.container h1 {
+  margin-bottom: 2rem;
+  color: var(--cor-texto-titulos);
+}
+
+.header {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  color: var(--cor-texto-titulos);
+  margin: 0;
+}
+
+.header p {
+  margin-top: 0.5rem;
+  color: #777;
+}
+
+.revisoesList {
+  list-style: none;
+  padding: 0;
+}
+
+.revisaoItem {
+  background-color: var(--cor-fundo-secundario);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.revisaoItem:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+}
+
+.info .data {
+  display: inline-block;
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-branco);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.info .topicoNome {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.info .disciplinaNome {
+  margin: 0.25rem 0 0;
+  color: #555;
+}
+
+.botaoConcluir {
+  background-color: var(--cor-secundaria);
+  color: var(--cor-texto-branco);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.botaoConcluir:hover {
+  background-color: #27ae60; /* Verde mais escuro */
+}
+
+.semRevisoes {
+  text-align: center;
+  margin-top: 4rem;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}

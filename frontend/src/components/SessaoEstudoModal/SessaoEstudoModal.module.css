@@ -3,6 +3,7 @@
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background-color: rgba(0, 0, 0, 0.75);
   display: flex; align-items: center; justify-content: center;
+  z-index: 1000; /* Garante que o modal fique por cima de tudo */
 }
 .modal {
   width: 100%; max-width: 500px;
@@ -17,6 +18,7 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
+  background-color: #fff; /* Garante fundo branco nos inputs */
 }
 .formRow { display: flex; gap: 1rem; }
 .buttons {
@@ -27,5 +29,38 @@
   font-weight: 500; cursor: pointer; transition: opacity 0.2s;
 }
 .buttons button:hover { opacity: 0.9; }
-.cancelButton { background-color: #eee; }
+.cancelButton { background-color: #eee; color: #333; }
 .saveButton { background-color: var(--cor-primaria); color: var(--cor-texto-branco); }
+
+/* --- NOVOS ESTILOS PARA OPÇÕES DE REVISÃO --- */
+.revisaoOptions {
+  background-color: #f7f7f7;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Espaço entre o checkbox e o texto */
+}
+
+.checkboxGroup label {
+  margin-bottom: 0; /* Remove a margem padrão do label */
+  font-weight: normal; /* Texto com peso normal */
+  cursor: pointer;
+}
+
+.checkboxGroup input[type="checkbox"] {
+  width: 18px; /* Tamanho do checkbox */
+  height: 18px;
+  cursor: pointer;
+}
+
+.subOption {
+  margin-top: 0.75rem;
+  margin-left: 1.5rem; /* Indentação para a sub-opção */
+}
