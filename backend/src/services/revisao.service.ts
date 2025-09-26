@@ -1,5 +1,5 @@
 // ARQUIVO: backend/src/services/revisao.service.ts
-
+import { startOfDay, endOfDay } from 'date-fns';
 import { PrismaClient, StatusRevisao } from '@prisma/client';
 const prisma = new PrismaClient();
 
@@ -25,6 +25,34 @@ export const revisaoService = {
       },
       orderBy: {
         dataAgendada: 'asc', // Ordena pelas mais próximas primeiro
+      },
+    });
+  },
+   getRevisoesDeHoje: async (userId: string) => {
+    const hoje = new Date();
+    return await prisma.revisao.findMany({
+      where: {
+        userId: userId,
+        status: 'PENDENTE',
+        dataAgendada: {
+          gte: startOfDay(hoje), // Maior ou igual ao início do dia de hoje
+          lte: endOfDay(hoje),   // Menor ou igual ao final do dia de hoje
+        },
+      },
+      include: {
+        topico: {
+          select: {
+            nome: true,
+            disciplina: {
+              select: {
+                nome: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        dataAgendada: 'asc',
       },
     });
   },
