@@ -1,19 +1,21 @@
-// src/App.tsx
+// ARQUIVO: frontend/src/App.tsx
+
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import styles from './App.module.css';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { Header } from './components/Header/Header';
 import { SessaoEstudoModal } from './components/SessaoEstudoModal/SessaoEstudoModal';
 import { ChronometerModal } from './components/ChronometerModal/ChronometerModal';
-import styles from './App.module.css';
 import { useData } from './contexts/DataContext';
+import type { Revisao } from './services/revisaoService';
 
 function App() {
   const [isSessaoModalOpen, setIsSessaoModalOpen] = useState(false);
   const [isChronometerModalOpen, setIsChronometerModalOpen] = useState(false);
   const [prefilledTime, setPrefilledTime] = useState(0);
+  const [revisaoContext, setRevisaoContext] = useState<Revisao | null>(null);
   
-  // Pega os dados e a função de recarregar do nosso contexto global
   const { disciplinas, refetchData } = useData();
 
   const handleChronometerStop = (elapsedSeconds: number) => {
@@ -21,9 +23,27 @@ function App() {
     setPrefilledTime(elapsedSeconds);
     setIsSessaoModalOpen(true);
   };
+
   const handleOpenSessaoModal = () => {
     setPrefilledTime(0);
+    setRevisaoContext(null); // Garante que é um estudo livre
     setIsSessaoModalOpen(true);
+  };
+
+  const handleStartChronometerForRevisao = (revisao: Revisao) => {
+    setRevisaoContext(revisao);
+    setIsChronometerModalOpen(true);
+  };
+
+  const handleRegisterRevisaoManual = (revisao: Revisao) => {
+    setPrefilledTime(0);
+    setRevisaoContext(revisao);
+    setIsSessaoModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsSessaoModalOpen(false);
+    setRevisaoContext(null); // Limpa o contexto ao fechar o modal
   };
 
   return (
@@ -31,11 +51,14 @@ function App() {
       <Sidebar />
       <div className={styles.contentWrapper}>
         <Header 
-          onOpenChronometer={() => setIsChronometerModalOpen(true)}
+          onOpenChronometer={() => {
+            setRevisaoContext(null); // Garante que o cronômetro livre não tenha contexto
+            setIsChronometerModalOpen(true);
+          }}
           onOpenNewStudySession={handleOpenSessaoModal}
         />
         <main className={styles.mainContent}>
-          <Outlet />
+          <Outlet context={{ handleStartChronometerForRevisao, handleRegisterRevisaoManual }} />
         </main>
       </div>
       
@@ -47,10 +70,11 @@ function App() {
 
       <SessaoEstudoModal
         isOpen={isSessaoModalOpen}
-        onRequestClose={() => setIsSessaoModalOpen(false)}
+        onRequestClose={handleCloseModal}
         disciplinas={disciplinas}
         initialTimeInSeconds={prefilledTime}
         onSessionSaved={refetchData}
+        revisaoContext={revisaoContext}
       />
     </div>
   );

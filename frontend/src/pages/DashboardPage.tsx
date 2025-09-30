@@ -1,4 +1,4 @@
-// src/pages/DashboardPage.tsx
+// ARQUIVO: frontend/src/pages/DashboardPage.tsx
 
 import { useState, useEffect } from 'react';
 import styles from './DashboardPage.module.css';
@@ -12,7 +12,14 @@ import type { DisciplinaSummary } from '../services/disciplinaService';
 import { getDisciplinasSummary } from '../services/disciplinaService';
 import type { CicloComProgresso } from '../services/cicloService';
 import { getAllCiclosComProgresso } from '../services/cicloService';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useOutletContext } from 'react-router-dom';
+import { getRevisoesDeHoje, type Revisao } from '../services/revisaoService';
+import { FaPlay, FaEdit } from 'react-icons/fa';
+
+interface DashboardContextType {
+  handleStartChronometerForRevisao: (revisao: Revisao) => void;
+  handleRegisterRevisaoManual: (revisao: Revisao) => void;
+}
 
 const formatTime = (seconds: number): string => {
   if (isNaN(seconds) || seconds < 0) return "00h00min";
@@ -25,37 +32,37 @@ export function DashboardPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
   const [summary, setSummary] = useState<DisciplinaSummary[]>([]);
   const [ciclos, setCiclos] = useState<CicloComProgresso[]>([]);
+  const [revisoesHoje, setRevisoesHoje] = useState<Revisao[]>([]);
   const [carregando, setCarregando] = useState(true);
   
-  // AJUSTE 1: Pegar o `refetchKey` do contexto em vez de `refetchData`.
   const { refetchKey } = useData();
+  const { handleStartChronometerForRevisao, handleRegisterRevisaoManual } = useOutletContext<DashboardContextType>();
 
-  // Função que busca todos os dados do dashboard
-  const fetchDashboardData = async () => {
-    setCarregando(true);
-    try {
-      const [sessoesData, summaryData, ciclosData] = await Promise.all([
-        getAllSessoes({}),
-        getDisciplinasSummary(),
-        getAllCiclosComProgresso()
-      ]);
-      setSessoes(sessoesData);
-      setSummary(summaryData);
-      setCiclos(ciclosData);
-    } catch (err) {
-      console.error("Erro ao buscar dados do dashboard:", err);
-    } finally {
-      setCarregando(false);
-    }
-  };
-
-  // AJUSTE 2: Usar `refetchKey` como dependência para disparar a atualização.
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      setCarregando(true);
+      try {
+        const [sessoesData, summaryData, ciclosData, revisoesHojeData] = await Promise.all([
+          getAllSessoes({}),
+          getDisciplinasSummary(),
+          getAllCiclosComProgresso(),
+          getRevisoesDeHoje(),
+        ]);
+        setSessoes(sessoesData);
+        setSummary(summaryData);
+        setCiclos(ciclosData);
+        setRevisoesHoje(revisoesHojeData);
+      } catch (err) {
+        console.error("Erro ao buscar dados do dashboard:", err);
+      } finally {
+        setCarregando(false);
+      }
+    };
     fetchDashboardData();
   }, [refetchKey]);
 
   const totais = sessoes.reduce((acc, sessao) => {
-    acc.tempo += sessao.tempoEstudado;
+    acc.tempo += sessao.tempoEstudado || 0;
     acc.questoes += sessao.totalQuestoes || 0;
     acc.acertos += sessao.acertosQuestoes || 0;
     acc.erros += sessao.errosQuestoes || 0;
@@ -82,27 +89,65 @@ export function DashboardPage() {
       </div>
 
       <div className={styles.mainGrid}>
-        <div className={styles.painelGeral}>
-          <h2>Painel Geral</h2>
-          <DisciplinaSummaryPanel summaryData={summary} />
+        <div className={styles.leftColumn}>
+          <div className={styles.revisoesHojeContainer}>
+            <div className={styles.revisoesHeader}>
+              <h2>Revisões para Hoje</h2>
+              {revisoesHoje.length > 3 && <NavLink to="/revisoes" className={styles.verTodasLink}>Ver todas</NavLink>}
+            </div>
+            {revisoesHoje.length > 0 ? (
+              <ul className={styles.revisoesList}>
+                {revisoesHoje.map((revisao) => (
+                  <li key={revisao.id} className={styles.revisaoItem}>
+                    <div className={styles.revisaoInfo}>
+                      <strong>{revisao.topico.nome}</strong>
+                      <p>{revisao.topico.disciplina.nome}</p>
+                    </div>
+                    <div className={styles.revisaoAcoes}>
+                      <button onClick={() => handleRegisterRevisaoManual(revisao)} className={styles.acaoBtn} title="Registrar manualmente"><FaEdit /></button>
+                      <button onClick={() => handleStartChronometerForRevisao(revisao)} className={`${styles.acaoBtn} ${styles.playBtn}`} title="Iniciar cronômetro"><FaPlay /></button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.semRevisoes}>Nenhuma revisão para hoje. Bom descanso!</p>
+            )}
+          </div>
+          
+          <div className={styles.painelGeral}>
+            <h2>Painel Geral</h2>
+            <DisciplinaSummaryPanel summaryData={summary} />
+          </div>
         </div>
 
-        <div className={styles.ciclosContainer}>
-          <h2>Progresso dos Ciclos</h2>
+        {/* =============================================================== */}
+        {/* AJUSTE APLICADO AQUI: A estrutura da coluna da direita foi alterada */}
+        <div className={styles.rightColumn}>
+          <h2 className={styles.columnTitle}>Progresso dos Ciclos</h2>
+          
           {ciclos.length > 0 ? (
             ciclos.map(ciclo => (
-              <CicloStatusChart key={ciclo.id} cicloAtivo={ciclo} />
+              <div key={ciclo.id} className={styles.cicloCard}>
+                <CicloStatusChart cicloAtivo={ciclo} />
+              </div>
             ))
           ) : (
-            <div className={styles.noCiclo}>
-              <h3>Nenhum Ciclo Cadastrado</h3>
-              <p>
-                               <NavLink to="/planejamento" className={({ isActive }) => isActive ? styles.active : ''}>
-                <span className={styles.link}>  Clique  aqui</span>
-              </NavLink>  para criar seu primeiro ciclo.</p>
+            <div className={styles.cicloCard}>
+              <div className={styles.noCiclo}>
+                <h3>Nenhum Ciclo Cadastrado</h3>
+                <p>
+                  <NavLink to="/planejamento">
+                    <span className={styles.link}>Clique aqui</span>
+                  </NavLink> para criar seu primeiro ciclo.
+                </p>
+              </div>
             </div>
           )}
         </div>
+        {/* FIM DO AJUSTE */}
+        {/* =============================================================== */}
+
       </div>
     </div>
   );

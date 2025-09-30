@@ -16,7 +16,18 @@ export const revisaoController = {
       res.status(500).json({ error: 'Falha ao buscar revisões.' });
     }
   },
+ getRevisoesDeHoje: async (req: Request, res: Response) => {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) return res.status(401).json({ error: 'Não autorizado.' });
 
+      const revisoes = await revisaoService.getRevisoesDeHoje(userId);
+      res.status(200).json(revisoes);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Falha ao buscar revisões de hoje.' });
+    }
+  },
   updateStatus: async (req: Request, res: Response) => {
     try {
       const userId = req.user?.userId;

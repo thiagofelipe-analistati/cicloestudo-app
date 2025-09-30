@@ -15,8 +15,15 @@ const formatTime = (seconds: number): string => {
 
 const formatDate = (dateValue: Date | string) => {
   const date = new Date(dateValue);
-  return new Intl.DateTimeFormat('pt-BR').format(date);
+  return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(date);
 };
+
+// CORREÇÃO 1: Definindo um tipo para os filtros
+interface SessaoFilters {
+  disciplinaId?: string;
+  dataInicio?: string;
+  dataFim?: string;
+}
 
 export function HistoricoPage() {
   const [sessoes, setSessoes] = useState<SessaoEstudo[]>([]);
@@ -28,7 +35,8 @@ export function HistoricoPage() {
   useEffect(() => {
     setCarregando(true);
 
-    const params: Record<string, string> = {};
+    // CORREÇÃO 2: Substituímos 'any' pelo nosso novo tipo 'SessaoFilters'
+    const params: SessaoFilters = {};
     if (filters.disciplinaId) params.disciplinaId = filters.disciplinaId;
     if (filters.dataInicio) params.dataInicio = filters.dataInicio;
     if (filters.dataFim) params.dataFim = filters.dataFim;
@@ -37,7 +45,7 @@ export function HistoricoPage() {
       .then(setSessoes)
       .catch(err => console.error("Erro ao buscar sessões:", err))
       .finally(() => setCarregando(false));
-  }, [filters, refetchKey]); // <- atualiza sempre que refetchKey mudar
+  }, [filters, refetchKey]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -45,7 +53,7 @@ export function HistoricoPage() {
   };
 
   const totais = sessoes.reduce((acc, sessao) => {
-    acc.tempo += sessao.tempoEstudado;
+    acc.tempo += sessao.tempoEstudado || 0;
     acc.questoes += sessao.totalQuestoes || 0;
     acc.acertos += sessao.acertosQuestoes || 0;
     acc.erros += sessao.errosQuestoes || 0;
@@ -63,7 +71,6 @@ export function HistoricoPage() {
           <h3>Tempo de Estudo</h3>
           <p>{formatTime(totais.tempo)}</p>
         </div>
-
         <div className={styles.summaryCard}>
           <h3>Desempenho</h3>
           <p>{percentualAcerto.toFixed(1)}%</p>
@@ -73,7 +80,6 @@ export function HistoricoPage() {
             <span className={styles.errorCount}>Erradas: {totais.erros}</span>
           </div>
         </div>
-
         <div className={styles.summaryCard}>
           <h3>Sessões Realizadas</h3>
           <p>{sessoes.length}</p>

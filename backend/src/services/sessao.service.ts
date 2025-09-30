@@ -3,8 +3,7 @@
 import { PrismaClient } from '@prisma/client';
 import { addDays } from 'date-fns'; // Precisaremos desta biblioteca para adicionar dias
 const prisma = new PrismaClient();
-
-// NOVO: Tipo de dados atualizado para incluir as opções de revisão
+// Tipo de dados recebido do frontend
 type SessaoCreateData = {
   data: string | Date;
   tempoEstudado: number;
@@ -16,15 +15,15 @@ type SessaoCreateData = {
   errosQuestoes?: number;
   paginasLidas?: number;
   comentarios?: string;
-  concluiuTopico?: boolean; // <-- Novo campo
-  agendarRevisao?: boolean; // <-- Novo campo
+  concluiuTopico?: boolean;
+  agendarRevisao?: boolean;
+  revisaoId?: string; // <-- ADEQUAÇÃO: Campo opcional para identificar a revisão
 };
 
 export const sessaoService = {
   create: async (data: SessaoCreateData, userId: string) => {
-    // Usamos uma transação para garantir que todas as operações ocorram com sucesso
     return await prisma.$transaction(async (tx) => {
-      // 1. Cria a sessão de estudo principal
+      // 1. Cria a sessão de estudo principal (código original mantido)
       const novaSessao = await tx.sessaoEstudo.create({
         data: {
           data: new Date(data.data),
@@ -41,24 +40,24 @@ export const sessaoService = {
         },
       });
 
-      // 2. Verifica se o tópico foi concluído e se as revisões devem ser agendadas
+      // 2. ADEQUAÇÃO: Se um 'revisaoId' foi enviado, marca a revisão como concluída.
+      if (data.revisaoId) {
+        await tx.revisao.updateMany({
+          where: { id: data.revisaoId, userId: userId },
+          data: { status: 'CONCLUIDA' },
+        });
+      }
+
+      // 3. Lógica de concluir tópico e agendar novas revisões (código original mantido)
       if (data.concluiuTopico && data.topicoId) {
-        
-        // Marca o tópico como concluído
         await tx.topico.update({
           where: { id: data.topicoId },
           data: { concluido: true },
         });
 
-        // Se o usuário também pediu para agendar, cria as revisões
         if (data.agendarRevisao) {
           const hoje = new Date();
-          const datasRevisao = [
-            addDays(hoje, 1),  // Revisão em 1 dia
-            addDays(hoje, 7),  // Revisão em 7 dias
-            addDays(hoje, 30), // Revisão em 30 dias
-          ];
-
+          const datasRevisao = [addDays(hoje, 1), addDays(hoje, 7), addDays(hoje, 30)];
           await tx.revisao.createMany({
             data: datasRevisao.map(dataAgendada => ({
               dataAgendada,
@@ -74,11 +73,9 @@ export const sessaoService = {
   },
 
   getAll: async (filters: { disciplinaId?: string; dataInicio?: string; dataFim?: string; }, userId: string) => {
+    // ... seu código original aqui, sem alterações ...
     const where: any = { userId };
-
-    if (filters.disciplinaId) {
-      where.disciplinaId = filters.disciplinaId;
-    }
+    if (filters.disciplinaId) { where.disciplinaId = filters.disciplinaId; }
     if (filters.dataInicio || filters.dataFim) {
       where.data = {};
       if (filters.dataInicio) { where.data.gte = new Date(filters.dataInicio); }

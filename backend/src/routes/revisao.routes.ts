@@ -12,6 +12,9 @@ router.use(authenticateToken);
 // Rota para buscar todas as revisões pendentes
 router.get('/', revisaoController.getAllPendentes);
 
+// Rota para buscar revisões de hoje
+router.get('/hoje', revisaoController.getRevisoesDeHoje);
+
 // Rota para marcar uma revisão como concluída
 router.patch('/:revisaoId/concluir', revisaoController.updateStatus);
 
