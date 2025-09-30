@@ -1,8 +1,9 @@
 /* ARQUIVO: frontend/src/pages/RevisoesPage/RevisoesPage.module.css */
 
 .container {
+  /* AJUSTE: Garante o espaçamento interno padrão da página */
   padding: 2rem;
-  max-width: 900px;
+
   margin: 0 auto;
 }
 
@@ -60,7 +61,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
 .filterBar button {
@@ -117,7 +118,7 @@
 
 .info {
   flex-grow: 1;
-  min-width: 0; 
+  min-width: 0;
 }
 
 .info .data {
@@ -225,13 +226,14 @@
   border-radius: 8px;
 }
 
+
 /* ================================================================== */
 /* AJUSTE DE RESPONSIVIDADE PARA CELULARES E TELAS PEQUENAS           */
 /* ================================================================== */
 
 @media (max-width: 768px) {
   .container {
-    padding: 1rem;
+    padding: 1rem; /* Diminui o espaçamento geral */
   }
 
   .kpiGrid {
@@ -254,10 +256,4 @@
     padding-left: 0;
     border-left: none;
   }
-
-  /* A regra abaixo, que escondia o texto "Concluir", foi REMOVIDA.
-    .quickComplete label {
-      display: none; 
-    } 
-  */
 }
