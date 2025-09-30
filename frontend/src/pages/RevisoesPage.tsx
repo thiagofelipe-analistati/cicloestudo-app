@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import styles from './RevisoesPage.module.css';
 import { getRevisoesPendentes, marcarRevisaoComoConcluida, type Revisao, type RevisoesResponse } from '../services/revisaoService';
-import { format, isToday, isTomorrow, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale/pt-BR';
 import { useOutletContext } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
 import { FaPlay, FaEdit } from 'react-icons/fa';
@@ -14,11 +12,31 @@ interface RevisaoContextType {
   handleRegisterRevisaoManual: (revisao: Revisao) => void;
 }
 
+// Funções utilitárias substituindo date-fns
+const isToday = (date: Date) => {
+  const hoje = new Date();
+  return (
+    date.getDate() === hoje.getDate() &&
+    date.getMonth() === hoje.getMonth() &&
+    date.getFullYear() === hoje.getFullYear()
+  );
+};
+
+const isTomorrow = (date: Date) => {
+  const amanha = new Date();
+  amanha.setDate(amanha.getDate() + 1);
+  return (
+    date.getDate() === amanha.getDate() &&
+    date.getMonth() === amanha.getMonth() &&
+    date.getFullYear() === amanha.getFullYear()
+  );
+};
+
 const formatarDataRevisao = (data: string) => {
-  const dataObj = parseISO(data);
+  const dataObj = new Date(data);
   if (isToday(dataObj)) return 'Hoje';
   if (isTomorrow(dataObj)) return 'Amanhã';
-  return format(dataObj, "dd 'de' MMMM", { locale: ptBR });
+  return dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
 };
 
 export function RevisoesPage() {
@@ -53,7 +71,7 @@ export function RevisoesPage() {
     if (filtro === 'atrasadas') {
       filtradas = todasRevisoes.filter(r => r.atrasada);
     } else if (filtro === 'hoje') {
-      filtradas = todasRevisoes.filter(r => isToday(parseISO(r.dataAgendada)));
+      filtradas = todasRevisoes.filter(r => isToday(new Date(r.dataAgendada)));
     }
     setRevisoesFiltradas(filtradas);
   }, [filtro, todasRevisoes]);
