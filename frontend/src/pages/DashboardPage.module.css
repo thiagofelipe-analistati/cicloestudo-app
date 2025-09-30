@@ -80,3 +80,14 @@
 }
 .noCiclo h3 { margin-bottom: 0.5rem; }
 .link { color: var(--cor-primaria); font-weight: bold; text-decoration: none; }
+/* Para telas com largura máxima de 900px (tablets e celulares) */
+@media (max-width: 900px) {
+  .mainGrid {
+    /* Transforma o grid de 2 colunas em um layout de 1 coluna */
+    grid-template-columns: 1fr;
+  }
+  
+  .container {
+    padding: 1rem; /* Diminui o espaçamento lateral em telas menores */
+  }
+}
